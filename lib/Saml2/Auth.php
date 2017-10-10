@@ -168,17 +168,18 @@ class OneLogin_Saml2_Auth
     /**
      * Process the SAML Response sent by the IdP.
      *
+     * @param string|null $SAMLResponse
      * @param string|null $requestId The ID of the AuthNRequest sent by this SP to the IdP
      *
      * @throws OneLogin_Saml2_Error
      */
-    public function processResponse($requestId = null)
+    public function processResponse($SAMLResponse = null, $requestId = null)
     {
         $this->_errors = array();
         $this->_errorReason = null;
-        if (isset($_POST) && isset($_POST['SAMLResponse'])) {
+        if (isset($SAMLResponse)) {
             // AuthnResponse -- HTTP_POST Binding
-            $response = new OneLogin_Saml2_Response($this->_settings, $_POST['SAMLResponse']);
+            $response = new OneLogin_Saml2_Response($this->_settings, $SAMLResponse);
             $this->_lastResponse = $response->getXMLDocument();
 
             if ($response->isValid($requestId)) {
@@ -208,6 +209,9 @@ class OneLogin_Saml2_Auth
     /**
      * Process the SAML Logout Response / Logout Request sent by the IdP.
      *
+     * @param string|null $SAMLResponse
+     * @param string|null $SAMLRequest
+     * @param string|null $relayState
      * @param bool        $keepLocalSession              When false will destroy the local session, otherwise will keep it
      * @param string|null $requestId                     The ID of the LogoutRequest sent by this SP to the IdP
      * @param bool        $retrieveParametersFromServer
@@ -218,12 +222,12 @@ class OneLogin_Saml2_Auth
      *
      * @throws OneLogin_Saml2_Error
      */
-    public function processSLO($keepLocalSession = false, $requestId = null, $retrieveParametersFromServer = false, $cbDeleteSession = null, $stay = false)
+    public function processSLO($SAMLResponse = null, $SAMLRequest = null, $relayState = null, $keepLocalSession = false, $requestId = null, $retrieveParametersFromServer = false, $cbDeleteSession = null, $stay = false)
     {
         $this->_errors = array();
         $this->_errorReason = null;
-        if (isset($_GET) && isset($_GET['SAMLResponse'])) {
-            $logoutResponse = new OneLogin_Saml2_LogoutResponse($this->_settings, $_GET['SAMLResponse']);
+        if ($SAMLResponse) {
+            $logoutResponse = new OneLogin_Saml2_LogoutResponse($this->_settings, $SAMLResponse);
             $this->_lastResponse = $logoutResponse->getXML();
             if (!$logoutResponse->isValid($requestId, $retrieveParametersFromServer)) {
                 $this->_errors[] = 'invalid_logout_response';
@@ -240,8 +244,8 @@ class OneLogin_Saml2_Auth
                     }
                 }
             }
-        } else if (isset($_GET) && isset($_GET['SAMLRequest'])) {
-            $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings, $_GET['SAMLRequest']);
+        } else if ($SAMLRequest) {
+            $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings, $SAMLRequest);
             $this->_lastRequest = $logoutRequest->getXML();
             if (!$logoutRequest->isValid($retrieveParametersFromServer)) {
                 $this->_errors[] = 'invalid_logout_request';
@@ -263,8 +267,8 @@ class OneLogin_Saml2_Auth
                 $logoutResponse = $responseBuilder->getResponse();
 
                 $parameters = array('SAMLResponse' => $logoutResponse);
-                if (isset($_GET['RelayState'])) {
-                    $parameters['RelayState'] = $_GET['RelayState'];
+                if ($relayState) {
+                    $parameters['RelayState'] = $relayState;
                 }
 
                 $security = $this->_settings->getSecurityData();
