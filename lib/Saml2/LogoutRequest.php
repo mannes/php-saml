@@ -293,9 +293,12 @@ LOGOUTREQUEST;
     /**
      * Checks if the Logout Request recieved is valid.
      *
+     * @param string|null   $signature
+     * @param bool          $retrieveParametersFromServer
+     *
      * @return bool If the Logout Request is or not valid
      */
-    public function isValid($retrieveParametersFromServer = false)
+    public function isValid($signature = null, $retrieveParametersFromServer = false)
     {
         $this->_error = null;
         try {
@@ -356,7 +359,7 @@ LOGOUTREQUEST;
                 }
 
                 if ($security['wantMessagesSigned']) {
-                    if (!isset($_GET['Signature'])) {
+                    if (!isset($signature)) {
                         throw new OneLogin_Saml2_ValidationError(
                             "The Message of the Logout Request is not signed and the SP require it",
                             OneLogin_Saml2_ValidationError::NO_SIGNED_MESSAGE
@@ -365,7 +368,7 @@ LOGOUTREQUEST;
                 }
             }
 
-            if (isset($_GET['Signature'])) {
+            if (isset($signature)) {
                 $signatureValid = OneLogin_Saml2_Utils::validateBinarySign("SAMLRequest", $_GET, $idpData, $retrieveParametersFromServer);
                 if (!$signatureValid) {
                     throw new OneLogin_Saml2_ValidationError(
