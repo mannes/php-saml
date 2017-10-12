@@ -222,8 +222,16 @@ class OneLogin_Saml2_Auth
      *
      * @throws OneLogin_Saml2_Error
      */
-    public function processSLO($SAMLResponse = null, $SAMLRequest = null, $relayState = null, $keepLocalSession = false, $requestId = null, $retrieveParametersFromServer = false, $cbDeleteSession = null, $stay = false)
-    {
+    public function processSLO(
+        $SAMLResponse = null,
+        $SAMLRequest = null,
+        $relayState = null,
+        $keepLocalSession = false,
+        $requestId = null,
+        $retrieveParametersFromServer = false,
+        $cbDeleteSession = null,
+        $stay = false
+    ) {
         $this->_errors = array();
         $this->_errorReason = null;
         if ($SAMLResponse) {
@@ -232,7 +240,7 @@ class OneLogin_Saml2_Auth
             if (!$logoutResponse->isValid($requestId, $retrieveParametersFromServer)) {
                 $this->_errors[] = 'invalid_logout_response';
                 $this->_errorReason = $logoutResponse->getError();
-            } else if ($logoutResponse->getStatus() !== OneLogin_Saml2_Constants::STATUS_SUCCESS) {
+            } elseif ($logoutResponse->getStatus() !== OneLogin_Saml2_Constants::STATUS_SUCCESS) {
                 $this->_errors[] = 'logout_not_success';
             } else {
                 $this->_lastMessageId = $logoutResponse->id;
@@ -244,7 +252,7 @@ class OneLogin_Saml2_Auth
                     }
                 }
             }
-        } else if ($SAMLRequest) {
+        } elseif ($SAMLRequest) {
             $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings, $SAMLRequest);
             $this->_lastRequest = $logoutRequest->getXML();
             if (!$logoutRequest->isValid($retrieveParametersFromServer)) {
@@ -273,7 +281,11 @@ class OneLogin_Saml2_Auth
 
                 $security = $this->_settings->getSecurityData();
                 if (isset($security['logoutResponseSigned']) && $security['logoutResponseSigned']) {
-                    $signature = $this->buildResponseSignature($logoutResponse, isset($parameters['RelayState'])? $parameters['RelayState']: null, $security['signatureAlgorithm']);
+                    $signature = $this->buildResponseSignature(
+                        $logoutResponse,
+                        $parameters['RelayState'] ?? null,
+                        $security['signatureAlgorithm']
+                    );
                     $parameters['SigAlg'] = $security['signatureAlgorithm'];
                     $parameters['Signature'] = $signature;
                 }
@@ -427,10 +439,16 @@ class OneLogin_Saml2_Auth
      * @param bool        $stay            True if we want to stay (returns the url string) False to redirect
      * @param bool        $setNameIdPolicy When true the AuthNReuqest will set a nameIdPolicy element
      *
-     * @return If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
+     * @return string If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
      */
-    public function login($returnTo = null, $parameters = array(), $forceAuthn = false, $isPassive = false, $stay = false, $setNameIdPolicy = true)
-    {
+    public function login(
+        $returnTo = null,
+        $parameters = array(),
+        $forceAuthn = false,
+        $isPassive = false,
+        $stay = false,
+        $setNameIdPolicy = true
+    ) {
         assert('is_array($parameters)');
 
         $authnRequest = new OneLogin_Saml2_AuthnRequest($this->_settings, $forceAuthn, $isPassive, $setNameIdPolicy);
@@ -449,7 +467,11 @@ class OneLogin_Saml2_Auth
 
         $security = $this->_settings->getSecurityData();
         if (isset($security['authnRequestsSigned']) && $security['authnRequestsSigned']) {
-            $signature = $this->buildRequestSignature($samlRequest, $parameters['RelayState'], $security['signatureAlgorithm']);
+            $signature = $this->buildRequestSignature(
+                $samlRequest,
+                $parameters['RelayState'],
+                $security['signatureAlgorithm']
+            );
             $parameters['SigAlg'] = $security['signatureAlgorithm'];
             $parameters['Signature'] = $signature;
         }
@@ -467,12 +489,19 @@ class OneLogin_Saml2_Auth
      * @param string|null $nameIdFormat        The NameID Format will be set in the LogoutRequest.
      * @param string|null $nameIdNameQualifier The NameID NameQualifier will be set in the LogoutRequest.
      *
-     * @return If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
+     * @return string|bool If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
      *
      * @throws OneLogin_Saml2_Error
      */
-    public function logout($returnTo = null, $parameters = array(), $nameId = null, $sessionIndex = null, $stay = false, $nameIdFormat = null, $nameIdNameQualifier = null)
-    {
+    public function logout(
+        $returnTo = null,
+        $parameters = array(),
+        $nameId = null,
+        $sessionIndex = null,
+        $stay = false,
+        $nameIdFormat = null,
+        $nameIdNameQualifier = null
+    ) {
         assert('is_array($parameters)');
 
         $sloUrl = $this->getSLOurl();
@@ -490,7 +519,14 @@ class OneLogin_Saml2_Auth
             $nameIdFormat = $this->_nameidFormat;
         }
 
-        $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings, null, $nameId, $sessionIndex, $nameIdFormat, $nameIdNameQualifier);
+        $logoutRequest = new OneLogin_Saml2_LogoutRequest(
+            $this->_settings,
+            null,
+            $nameId,
+            $sessionIndex,
+            $nameIdFormat,
+            $nameIdNameQualifier
+        );
 
         $this->_lastRequest = $logoutRequest->getXML();
         $this->_lastRequestID = $logoutRequest->id;
@@ -506,7 +542,11 @@ class OneLogin_Saml2_Auth
 
         $security = $this->_settings->getSecurityData();
         if (isset($security['logoutRequestSigned']) && $security['logoutRequestSigned']) {
-            $signature = $this->buildRequestSignature($samlRequest, $parameters['RelayState'], $security['signatureAlgorithm']);
+            $signature = $this->buildRequestSignature(
+                $samlRequest,
+                $parameters['RelayState'],
+                $security['signatureAlgorithm']
+            );
             $parameters['SigAlg'] = $security['signatureAlgorithm'];
             $parameters['Signature'] = $signature;
         }
@@ -655,7 +695,7 @@ class OneLogin_Saml2_Auth
     }
 
     /**
-     * @return The NotOnOrAfter value of the valid
+     * @return DateTime The NotOnOrAfter value of the valid
      *         SubjectConfirmationData node (if any)
      *         of the last assertion processed
      */
