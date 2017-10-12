@@ -1,21 +1,19 @@
 <?php
 
 /**
- * Utils of OneLogin PHP Toolkit
+ * Utils of OneLogin PHP Toolkit.
  *
  * Defines several often used methods
  */
-
 class OneLogin_Saml2_Utils
 {
-    const RESPONSE_SIGNATURE_XPATH = "/samlp:Response/ds:Signature";
-    const ASSERTION_SIGNATURE_XPATH = "/samlp:Response/saml:Assertion/ds:Signature";
+    const RESPONSE_SIGNATURE_XPATH = '/samlp:Response/ds:Signature';
+    const ASSERTION_SIGNATURE_XPATH = '/samlp:Response/saml:Assertion/ds:Signature';
 
     /**
      * @var bool Control if the `Forwarded-For-*` headers are used
      */
     private static $_proxyVars = false;
-
 
     /**
      * @var string
@@ -37,20 +35,19 @@ class OneLogin_Saml2_Utils
      */
     private static $_baseurlpath;
 
-
     /**
-     * Translates any string. Accepts args
+     * Translates any string. Accepts args.
      *
-     * @param string $msg Message to be translated
+     * @param string     $msg  Message to be translated
      * @param array|null $args Arguments
      *
      * @return string $translatedMsg  Translated text
      */
-    public static function t($msg, $args = array())
+    public static function t($msg, $args = [])
     {
         assert('is_string($msg)');
         if (extension_loaded('gettext')) {
-            bindtextdomain("phptoolkit", dirname(dirname(__DIR__)).'/locale');
+            bindtextdomain('phptoolkit', dirname(dirname(__DIR__)).'/locale');
             textdomain('phptoolkit');
 
             $translatedMsg = gettext($msg);
@@ -58,18 +55,19 @@ class OneLogin_Saml2_Utils
             $translatedMsg = $msg;
         }
         if (!empty($args)) {
-            $params = array_merge(array($translatedMsg), $args);
+            $params = array_merge([$translatedMsg], $args);
             $translatedMsg = call_user_func_array('sprintf', $params);
         }
+
         return $translatedMsg;
     }
 
     /**
      * This function load an XML string in a save way.
-     * Prevent XEE/XXE Attacks
+     * Prevent XEE/XXE Attacks.
      *
-     * @param DOMDocument $dom The document where load the xml.
-     * @param string      $xml The XML string to be loaded.
+     * @param DOMDocument $dom the document where load the xml
+     * @param string      $xml the XML string to be loaded
      *
      * @throws Exception
      *
@@ -80,7 +78,7 @@ class OneLogin_Saml2_Utils
         assert('$dom instanceof DOMDocument');
         assert('is_string($xml)');
 
-        if (strpos($xml, '<!ENTITY') !== false) {
+        if (false !== strpos($xml, '<!ENTITY')) {
             throw new Exception('Detected use of ENTITY in XML, disabled to prevent XXE/XEE attacks');
         }
 
@@ -90,9 +88,9 @@ class OneLogin_Saml2_Utils
 
         if (!$res) {
             return false;
-        } else {
-            return $dom;
         }
+
+        return $dom;
     }
 
     /**
@@ -100,8 +98,8 @@ class OneLogin_Saml2_Utils
      *
      * It will parse the string into a DOM document and validate this document against the schema.
      *
-     * @param string|DOMDocument $xml    The XML string or document which should be validated.
-     * @param string             $schema The schema filename which should be used.
+     * @param string|DOMDocument $xml    the XML string or document which should be validated
+     * @param string             $schema the schema filename which should be used
      * @param bool               $debug  To disable/enable the debug mode
      *
      * @return string|DOMDocument $dom  string that explains the problem or the DOMDocument
@@ -117,14 +115,14 @@ class OneLogin_Saml2_Utils
         if ($xml instanceof DOMDocument) {
             $dom = $xml;
         } else {
-            $dom = new DOMDocument;
+            $dom = new DOMDocument();
             $dom = self::loadXML($dom, $xml);
             if (!$dom) {
                 return 'unloaded_xml';
             }
         }
 
-        $schemaFile = __DIR__.'/schemas/' . $schema;
+        $schemaFile = __DIR__.'/schemas/'.$schema;
         $oldEntityLoader = libxml_disable_entity_loader(false);
         $res = $dom->schemaValidate($schemaFile);
         libxml_disable_entity_loader($oldEntityLoader);
@@ -141,57 +139,54 @@ class OneLogin_Saml2_Utils
             return 'invalid_xml';
         }
 
-
         return $dom;
     }
 
     /**
      * Returns a x509 cert (adding header & footer if required).
      *
-     * @param string  $cert  A x509 unformated cert
-     * @param bool    $heads True if we want to include head and footer
+     * @param string $cert  A x509 unformated cert
+     * @param bool   $heads True if we want to include head and footer
      *
      * @return string $x509 Formatted cert
      */
-
     public static function formatCert($cert, $heads = true)
     {
-        $x509cert = str_replace(array("\x0D", "\r", "\n"), "", $cert);
+        $x509cert = str_replace(["\x0D", "\r", "\n"], '', $cert);
         if (!empty($x509cert)) {
-            $x509cert = str_replace('-----BEGIN CERTIFICATE-----', "", $x509cert);
-            $x509cert = str_replace('-----END CERTIFICATE-----', "", $x509cert);
+            $x509cert = str_replace('-----BEGIN CERTIFICATE-----', '', $x509cert);
+            $x509cert = str_replace('-----END CERTIFICATE-----', '', $x509cert);
             $x509cert = str_replace(' ', '', $x509cert);
 
             if ($heads) {
                 $x509cert = "-----BEGIN CERTIFICATE-----\n".chunk_split($x509cert, 64, "\n")."-----END CERTIFICATE-----\n";
             }
-
         }
+
         return $x509cert;
     }
 
     /**
      * Returns a private key (adding header & footer if required).
      *
-     * @param string  $key   A private key
-     * @param bool    $heads True if we want to include head and footer
+     * @param string $key   A private key
+     * @param bool   $heads True if we want to include head and footer
      *
      * @return string $rsaKey Formatted private key
      */
-
     public static function formatPrivateKey($key, $heads = true)
     {
-        $key = str_replace(array("\x0D", "\r", "\n"), "", $key);
+        $key = str_replace(["\x0D", "\r", "\n"], '', $key);
         if (!empty($key)) {
-            if (strpos($key, '-----BEGIN PRIVATE KEY-----') !== false) {
-                $key = OneLogin_Saml2_Utils::getStringBetween($key, '-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----');
+            if (false !== strpos($key, '-----BEGIN PRIVATE KEY-----')) {
+                $key = self::getStringBetween($key, '-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----');
                 $key = str_replace(' ', '', $key);
 
                 if ($heads) {
                     $key = "-----BEGIN PRIVATE KEY-----\n".chunk_split($key, 64, "\n")."-----END PRIVATE KEY-----\n";
                 }
-            } else if (strpos($key, '-----BEGIN RSA PRIVATE KEY-----') !== false) {
-                $key = OneLogin_Saml2_Utils::getStringBetween($key, '-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----');
+            } elseif (false !== strpos($key, '-----BEGIN RSA PRIVATE KEY-----')) {
+                $key = self::getStringBetween($key, '-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----');
                 $key = str_replace(' ', '', $key);
 
                 if ($heads) {
@@ -205,85 +200,87 @@ class OneLogin_Saml2_Utils
                 }
             }
         }
+
         return $key;
     }
 
     /**
-     * Extracts a substring between 2 marks
+     * Extracts a substring between 2 marks.
      *
-     * @param string  $str      The target string
-     * @param string  $start    The initial mark
-     * @param string  $end      The end mark
+     * @param string $str   The target string
+     * @param string $start The initial mark
+     * @param string $end   The end mark
      *
      * @return string A substring or an empty string if is not able to find the marks
      *                or if there is no string between the marks
      */
     public static function getStringBetween($str, $start, $end)
     {
-        $str = ' ' . $str;
+        $str = ' '.$str;
         $ini = strpos($str, $start);
 
-        if ($ini == 0) {
+        if (0 == $ini) {
             return '';
         }
 
         $ini += strlen($start);
         $len = strpos($str, $end, $ini) - $ini;
+
         return substr($str, $ini, $len);
     }
 
     /**
      * Executes a redirection to the provided url (or return the target url).
      *
-     * @param string       $url        The target url
-     * @param array        $parameters Extra parameters to be passed as part of the url
-     * @param bool         $stay       True if we want to stay (returns the url string) False to redirect
-     *
-     * @return string|null $url
+     * @param string $url        The target url
+     * @param array  $parameters Extra parameters to be passed as part of the url
+     * @param bool   $stay       True if we want to stay (returns the url string) False to redirect
      *
      * @throws OneLogin_Saml2_Error
+     *
+     * @return string|null $url
      */
-    public static function redirect($url, $parameters = array(), $stay = false)
+    public static function redirect($url, $parameters = [], $stay = false)
     {
         assert('is_string($url)');
         assert('is_array($parameters)');
 
-        if (substr($url, 0, 1) === '/') {
-            $url = self::getSelfURLhost() . $url;
+        if ('/' === substr($url, 0, 1)) {
+            $url = self::getSelfURLhost().$url;
         }
 
         /* Verify that the URL is to a http or https site. */
         if (!preg_match('@^https?://@i', $url)) {
             throw new OneLogin_Saml2_Error(
-                'Redirect to invalid URL: ' . $url,
+                'Redirect to invalid URL: '.$url,
                 OneLogin_Saml2_Error::REDIRECT_INVALID_URL
             );
         }
 
         /* Add encoded parameters */
-        if (strpos($url, '?') === false) {
+        if (false === strpos($url, '?')) {
             $paramPrefix = '?';
         } else {
             $paramPrefix = '&';
         }
 
         foreach ($parameters as $name => $value) {
-            if ($value === null) {
+            if (null === $value) {
                 $param = urlencode($name);
-            } else if (is_array($value)) {
-                $param = "";
+            } elseif (is_array($value)) {
+                $param = '';
                 foreach ($value as $val) {
-                    $param .= urlencode($name) . "[]=" . urlencode($val). '&';
+                    $param .= urlencode($name).'[]='.urlencode($val).'&';
                 }
                 if (!empty($param)) {
                     $param = substr($param, 0, -1);
                 }
             } else {
-                $param = urlencode($name) . '=' . urlencode($value);
+                $param = urlencode($name).'='.urlencode($value);
             }
 
             if (!empty($param)) {
-                $url .= $paramPrefix . $param;
+                $url .= $paramPrefix.$param;
                 $paramPrefix = '&';
             }
         }
@@ -294,7 +291,7 @@ class OneLogin_Saml2_Utils
 
         header('Pragma: no-cache');
         header('Cache-Control: no-cache, must-revalidate');
-        header('Location: ' . $url);
+        header('Location: '.$url);
         exit();
     }
 
@@ -306,7 +303,7 @@ class OneLogin_Saml2_Utils
         if (!empty($baseurl)) {
             $baseurlpath = '/';
             if (preg_match('#^https?://([^/]*)/?(.*)#i', $baseurl, $matches)) {
-                if (strpos($baseurl, 'https://') === false) {
+                if (false === strpos($baseurl, 'https://')) {
                     self::setSelfProtocol('http');
                     $port = '80';
                 } else {
@@ -331,10 +328,10 @@ class OneLogin_Saml2_Utils
                 self::setBaseURLPath($baseurlpath);
             }
         } else {
-                self::$_host = null;
-                self::$_protocol = null;
-                self::$_port = null;
-                self::$_baseurlpath = null;
+            self::$_host = null;
+            self::$_protocol = null;
+            self::$_port = null;
+            self::$_baseurlpath = null;
         }
     }
 
@@ -343,11 +340,11 @@ class OneLogin_Saml2_Utils
      */
     public static function setProxyVars($proxyVars)
     {
-        self::$_proxyVars = (bool)$proxyVars;
+        self::$_proxyVars = (bool) $proxyVars;
     }
 
     /**
-     * return bool
+     * return bool.
      */
     public static function getProxyVars()
     {
@@ -374,11 +371,11 @@ class OneLogin_Saml2_Utils
 
         $portnumber = self::getSelfPort();
 
-        if (isset($portnumber) && ($portnumber != '80') && ($portnumber != '443')) {
-            $port = ':' . $portnumber;
+        if (isset($portnumber) && ('80' != $portnumber) && ('443' != $portnumber)) {
+            $port = ':'.$portnumber;
         }
 
-        return $protocol."://" . $currenthost . $port;
+        return $protocol.'://'.$currenthost.$port;
     }
 
     /**
@@ -396,15 +393,15 @@ class OneLogin_Saml2_Utils
     {
         if (empty($baseurlpath)) {
             self::$_baseurlpath = null;
-        } else if ($baseurlpath == '/') {
+        } elseif ('/' == $baseurlpath) {
             self::$_baseurlpath = '/';
         } else {
-            self::$_baseurlpath = '/' . trim($baseurlpath, '/') . '/';
+            self::$_baseurlpath = '/'.trim($baseurlpath, '/').'/';
         }
     }
 
     /**
-     * return string The baseurlpath to be used when constructing URLs
+     * return string The baseurlpath to be used when constructing URLs.
      */
     public static function getBaseURLPath()
     {
@@ -428,9 +425,10 @@ class OneLogin_Saml2_Utils
             if (function_exists('gethostname')) {
                 $currentHost = gethostname();
             } else {
-                $currentHost = php_uname("n");
+                $currentHost = php_uname('n');
             }
         }
+
         return $currentHost;
     }
 
@@ -458,13 +456,14 @@ class OneLogin_Saml2_Utils
         $protocol = 'http';
         if (self::$_protocol) {
             $protocol = self::$_protocol;
-        } elseif (self::getSelfPort() == 443) {
+        } elseif (443 == self::getSelfPort()) {
             $protocol = 'https';
         } elseif (self::getProxyVars() && isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
-        } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        } elseif (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS']) {
             $protocol = 'https';
         }
+
         return $protocol;
     }
 
@@ -493,10 +492,10 @@ class OneLogin_Saml2_Utils
         $portnumber = null;
         if (self::$_port) {
             $portnumber = self::$_port;
-        } else if (self::getProxyVars() && isset($_SERVER["HTTP_X_FORWARDED_PORT"])) {
-            $portnumber = $_SERVER["HTTP_X_FORWARDED_PORT"];
-        } else if (isset($_SERVER["SERVER_PORT"])) {
-            $portnumber = $_SERVER["SERVER_PORT"];
+        } elseif (self::getProxyVars() && isset($_SERVER['HTTP_X_FORWARDED_PORT'])) {
+            $portnumber = $_SERVER['HTTP_X_FORWARDED_PORT'];
+        } elseif (isset($_SERVER['SERVER_PORT'])) {
+            $portnumber = $_SERVER['SERVER_PORT'];
         } else {
             $currentHost = self::getRawHost();
 
@@ -508,6 +507,7 @@ class OneLogin_Saml2_Utils
                 }
             }
         }
+
         return $portnumber;
     }
 
@@ -518,7 +518,7 @@ class OneLogin_Saml2_Utils
      */
     public static function isHTTPS()
     {
-        return self::getSelfProtocol() == 'https';
+        return 'https' == self::getSelfProtocol();
     }
 
     /**
@@ -558,7 +558,7 @@ class OneLogin_Saml2_Utils
             $route = $_SERVER['REQUEST_URI'];
             if (!empty($_SERVER['QUERY_STRING'])) {
                 $route = str_replace($_SERVER['QUERY_STRING'], '', $route);
-                if (substr($route, -1) == '?') {
+                if ('?' == substr($route, -1)) {
                     $route = substr($route, 0, -1);
                 }
             }
@@ -569,7 +569,8 @@ class OneLogin_Saml2_Utils
             $route = $infoWithBaseURLPath;
         }
 
-        $selfRoutedURLNoQuery = $selfURLhost . $route;
+        $selfRoutedURLNoQuery = $selfURLhost.$route;
+
         return $selfRoutedURLNoQuery;
     }
 
@@ -585,7 +586,7 @@ class OneLogin_Saml2_Utils
         $requestURI = '';
         if (!empty($_SERVER['REQUEST_URI'])) {
             $requestURI = $_SERVER['REQUEST_URI'];
-            if ($requestURI[0] !== '/') {
+            if ('/' !== $requestURI[0]) {
                 if (preg_match('#^https?://[^/]*(/.*)#i', $requestURI, $matches)) {
                     $requestURI = $matches[1];
                 }
@@ -597,11 +598,13 @@ class OneLogin_Saml2_Utils
             $requestURI = $infoWithBaseURLPath;
         }
 
-        return $selfURLhost . $requestURI;
+        return $selfURLhost.$requestURI;
     }
 
     /**
      * Returns the part of the URL with the BaseURLPath.
+     *
+     * @param mixed $info
      *
      * @return string
      */
@@ -619,11 +622,12 @@ class OneLogin_Saml2_Utils
                 }
             }
         }
+
         return $result;
     }
 
     /**
-     * Extract a query param - as it was sent - from $_SERVER[QUERY_STRING]
+     * Extract a query param - as it was sent - from $_SERVER[QUERY_STRING].
      *
      * @param string $name The param to-be extracted
      *
@@ -634,31 +638,33 @@ class OneLogin_Saml2_Utils
         $index = strpos($_SERVER['QUERY_STRING'], $name.'=');
         $substring = substr($_SERVER['QUERY_STRING'], $index + strlen($name) + 1);
         $end = strpos($substring, '&');
+
         return $end ? substr($substring, 0, strpos($substring, '&')) : $substring;
     }
 
     /**
      * Generates an unique string (used for example as ID for assertions).
      *
-     * @return string  A unique string
+     * @return string A unique string
      */
     public static function generateUniqueID()
     {
-        return 'ONELOGIN_' . sha1(uniqid(mt_rand(), true));
+        return 'ONELOGIN_'.sha1(uniqid(mt_rand(), true));
     }
 
     /**
      * Converts a UNIX timestamp to SAML2 timestamp on the form
      * yyyy-mm-ddThh:mm:ss(\.s+)?Z.
      *
-     * @param string $time The time we should convert (DateTime).
+     * @param string $time the time we should convert (DateTime)
      *
-     * @return string $timestamp SAML2 timestamp.
+     * @return string $timestamp SAML2 timestamp
      */
     public static function parseTime2SAML($time)
     {
         $date = new DateTime("@$time", new DateTimeZone('UTC'));
         $timestamp = $date->format("Y-m-d\TH:i:s\Z");
+
         return $timestamp;
     }
 
@@ -666,23 +672,23 @@ class OneLogin_Saml2_Utils
      * Converts a SAML2 timestamp on the form yyyy-mm-ddThh:mm:ss(\.s+)?Z
      * to a UNIX timestamp. The sub-second part is ignored.
      *
-     * @param string $time The time we should convert (SAML Timestamp).
-     *
-     * @return int $timestamp  Converted to a unix timestamp.
+     * @param string $time the time we should convert (SAML Timestamp)
      *
      * @throws Exception
+     *
+     * @return int $timestamp  converted to a unix timestamp
      */
     public static function parseSAML2Time($time)
     {
-        $matches = array();
+        $matches = [];
 
         /* We use a very strict regex to parse the timestamp. */
         $exp1 = '/^(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)';
         $exp2 = 'T(\\d\\d):(\\d\\d):(\\d\\d)(?:\\.\\d+)?Z$/D';
-        if (preg_match($exp1 . $exp2, $time, $matches) == 0) {
+        if (0 == preg_match($exp1.$exp2, $time, $matches)) {
             throw new Exception(
-                'Invalid SAML2 timestamp passed to' .
-                ' parseSAML2Time: ' . $time
+                'Invalid SAML2 timestamp passed to'.
+                ' parseSAML2Time: '.$time
             );
         }
 
@@ -690,12 +696,12 @@ class OneLogin_Saml2_Utils
          * matches in the regex. int cast will ignore leading zeroes
          * in the string.
          */
-        $year = (int)$matches[1];
-        $month = (int)$matches[2];
-        $day = (int)$matches[3];
-        $hour = (int)$matches[4];
-        $minute = (int)$matches[5];
-        $second = (int)$matches[6];
+        $year = (int) $matches[1];
+        $month = (int) $matches[2];
+        $day = (int) $matches[3];
+        $hour = (int) $matches[4];
+        $minute = (int) $matches[5];
+        $second = (int) $matches[6];
 
         /* We use gmmktime because the timestamp will always be given
          * in UTC.
@@ -705,18 +711,17 @@ class OneLogin_Saml2_Utils
         return $ts;
     }
 
-
     /**
      * Interprets a ISO8601 duration value relative to a given timestamp.
      *
-     * @param string   $duration  The duration, as a string.
+     * @param string   $duration  the duration, as a string
      * @param int|null $timestamp The unix timestamp we should apply the
      *                            duration to. Optional, default to the
      *                            current time.
      *
-     * @return int|null The new timestamp, after the duration is applied.
-     *
      * @throws Exception
+     *
+     * @return int|null the new timestamp, after the duration is applied
      */
     public static function parseDuration($duration, $timestamp = null)
     {
@@ -726,16 +731,16 @@ class OneLogin_Saml2_Utils
         /* Parse the duration. We use a very strict pattern. */
         $durationRegEx = '#^(-?)P(?:(?:(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?)?)|(?:(\\d+)W))$#D';
         if (!preg_match($durationRegEx, $duration, $matches)) {
-            throw new Exception('Invalid ISO 8601 duration: ' . $duration);
+            throw new Exception('Invalid ISO 8601 duration: '.$duration);
         }
 
-        $durYears = (empty($matches[2]) ? 0 : (int)$matches[2]);
-        $durMonths = (empty($matches[3]) ? 0 : (int)$matches[3]);
-        $durDays = (empty($matches[4]) ? 0 : (int)$matches[4]);
-        $durHours = (empty($matches[5]) ? 0 : (int)$matches[5]);
-        $durMinutes = (empty($matches[6]) ? 0 : (int)$matches[6]);
-        $durSeconds = (empty($matches[7]) ? 0 : (int)$matches[7]);
-        $durWeeks = (empty($matches[8]) ? 0 : (int)$matches[8]);
+        $durYears = (empty($matches[2]) ? 0 : (int) $matches[2]);
+        $durMonths = (empty($matches[3]) ? 0 : (int) $matches[3]);
+        $durDays = (empty($matches[4]) ? 0 : (int) $matches[4]);
+        $durHours = (empty($matches[5]) ? 0 : (int) $matches[5]);
+        $durMinutes = (empty($matches[6]) ? 0 : (int) $matches[6]);
+        $durSeconds = (empty($matches[7]) ? 0 : (int) $matches[7]);
+        $durWeeks = (empty($matches[8]) ? 0 : (int) $matches[8]);
 
         if (!empty($matches[1])) {
             /* Negative */
@@ -748,11 +753,11 @@ class OneLogin_Saml2_Utils
             $durWeeks = -$durWeeks;
         }
 
-        if ($timestamp === null) {
+        if (null === $timestamp) {
             $timestamp = time();
         }
 
-        if ($durYears !== 0 || $durMonths !== 0) {
+        if (0 !== $durYears || 0 !== $durMonths) {
             /* Special handling of months and years, since they aren't a specific interval, but
              * instead depend on the current time.
              */
@@ -761,8 +766,8 @@ class OneLogin_Saml2_Utils
              * gmtime function. Instead we use the gmdate function, and split the result.
              */
             $yearmonth = explode(':', gmdate('Y:n', $timestamp));
-            $year = (int)($yearmonth[0]);
-            $month = (int)($yearmonth[1]);
+            $year = (int) ($yearmonth[0]);
+            $month = (int) ($yearmonth[1]);
 
             /* Remove the year and month from the timestamp. */
             $timestamp -= gmmktime(0, 0, 0, $month, 1, $year);
@@ -796,33 +801,32 @@ class OneLogin_Saml2_Utils
     /**
      * Compares 2 dates and returns the earliest.
      *
-     * @param string $cacheDuration The duration, as a string.
+     * @param string $cacheDuration the duration, as a string
      * @param string $validUntil    The valid until date, as a string or as a timestamp
      *
-     * @return int $expireTime  The expiration time.
+     * @return int $expireTime  the expiration time
      */
     public static function getExpireTime($cacheDuration = null, $validUntil = null)
     {
         $expireTime = null;
 
-        if ($cacheDuration !== null) {
+        if (null !== $cacheDuration) {
             $expireTime = self::parseDuration($cacheDuration, time());
         }
 
-        if ($validUntil !== null) {
+        if (null !== $validUntil) {
             if (is_int($validUntil)) {
                 $validUntilTime = $validUntil;
             } else {
                 $validUntilTime = self::parseSAML2Time($validUntil);
             }
-            if ($expireTime === null || $expireTime > $validUntilTime) {
+            if (null === $expireTime || $expireTime > $validUntilTime) {
                 $expireTime = $validUntilTime;
             }
         }
 
         return $expireTime;
     }
-
 
     /**
      * Extracts nodes from the DOMDocument.
@@ -849,6 +853,7 @@ class OneLogin_Saml2_Utils
         } else {
             $res = $xpath->query($query);
         }
+
         return $res;
     }
 
@@ -860,10 +865,10 @@ class OneLogin_Saml2_Utils
     public static function isSessionStarted()
     {
         if (PHP_VERSION_ID >= 50400) {
-            return session_status() === PHP_SESSION_ACTIVE ? true : false;
-        } else {
-            return session_id() === '' ? false : true;
+            return PHP_SESSION_ACTIVE === session_status() ? true : false;
         }
+
+        return '' === session_id() ? false : true;
     }
 
     /**
@@ -871,8 +876,7 @@ class OneLogin_Saml2_Utils
      */
     public static function deleteLocalSession()
     {
-
-        if (OneLogin_Saml2_Utils::isSessionStarted()) {
+        if (self::isSessionStarted()) {
             session_destroy();
         }
 
@@ -883,6 +887,7 @@ class OneLogin_Saml2_Utils
      * Calculates the fingerprint of a x509cert.
      *
      * @param string $x509cert x509 cert
+     * @param mixed  $alg
      *
      * @return null|string Formatted fingerprint
      */
@@ -897,13 +902,13 @@ class OneLogin_Saml2_Utils
         foreach ($lines as $line) {
             /* Remove '\r' from end of line if present. */
             $line = rtrim($line);
-            if ($line === '-----BEGIN CERTIFICATE-----') {
+            if ('-----BEGIN CERTIFICATE-----' === $line) {
                 /* Delete junk from before the certificate. */
                 $data = '';
-            } elseif ($line === '-----END CERTIFICATE-----') {
+            } elseif ('-----END CERTIFICATE-----' === $line) {
                 /* Ignore data after the certificate. */
                 break;
-            } elseif ($line === '-----BEGIN PUBLIC KEY-----' || $line === '-----BEGIN RSA PRIVATE KEY-----') {
+            } elseif ('-----BEGIN PUBLIC KEY-----' === $line || '-----BEGIN RSA PRIVATE KEY-----' === $line) {
                 /* This isn't an X509 certificate. */
                 return null;
             } else {
@@ -924,6 +929,7 @@ class OneLogin_Saml2_Utils
                 $fingerprint = strtolower(sha1($decodedData));
                 break;
         }
+
         return $fingerprint;
     }
 
@@ -938,6 +944,7 @@ class OneLogin_Saml2_Utils
     {
         $formatedFingerprint = str_replace(':', '', $fingerprint);
         $formatedFingerprint = strtolower($formatedFingerprint);
+
         return $formatedFingerprint;
     }
 
@@ -954,7 +961,6 @@ class OneLogin_Saml2_Utils
      */
     public static function generateNameId($value, $spnq, $format, $cert = null, $nq = null)
     {
-
         $doc = new DOMDocument();
 
         $nameId = $doc->createElement('saml:NameID');
@@ -970,7 +976,7 @@ class OneLogin_Saml2_Utils
         $doc->appendChild($nameId);
 
         if (!empty($cert)) {
-            $seckey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, array('type'=>'public'));
+            $seckey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, ['type' => 'public']);
             $seckey->loadKey($cert);
 
             $enc = new XMLSecEnc();
@@ -992,37 +998,36 @@ class OneLogin_Saml2_Utils
             $encryptedID->appendChild($encryptedID->ownerDocument->importNode($encryptedData, true));
 
             return $newdoc->saveXML($encryptedID);
-        } else {
-            return $doc->saveXML($nameId);
         }
-    }
 
+        return $doc->saveXML($nameId);
+    }
 
     /**
      * Gets Status from a Response.
      *
      * @param DOMDocument $dom The Response as XML
      *
-     * @return array $status The Status, an array with the code and a message.
-     *
      * @throws Exception
+     *
+     * @return array $status the Status, an array with the code and a message
      */
     public static function getStatus($dom)
     {
-        $status = array();
+        $status = [];
 
         $statusEntry = self::query($dom, '/samlp:Response/samlp:Status');
-        if ($statusEntry->length != 1) {
+        if (1 != $statusEntry->length) {
             throw new OneLogin_Saml2_ValidationError(
-                "Missing Status on response",
+                'Missing Status on response',
                 OneLogin_Saml2_ValidationError::MISSING_STATUS
             );
         }
 
         $codeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode', $statusEntry->item(0));
-        if ($codeEntry->length != 1) {
+        if (1 != $codeEntry->length) {
             throw new OneLogin_Saml2_ValidationError(
-                "Missing Status Code on response",
+                'Missing Status Code on response',
                 OneLogin_Saml2_ValidationError::MISSING_STATUS_CODE
             );
         }
@@ -1031,12 +1036,12 @@ class OneLogin_Saml2_Utils
 
         $status['msg'] = '';
         $messageEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusMessage', $statusEntry->item(0));
-        if ($messageEntry->length == 0) {
+        if (0 == $messageEntry->length) {
             $subCodeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode/samlp:StatusCode', $statusEntry->item(0));
-            if ($subCodeEntry->length == 1) {
+            if (1 == $subCodeEntry->length) {
                 $status['msg'] = $subCodeEntry->item(0)->getAttribute('Value');
             }
-        } else if ($messageEntry->length == 1) {
+        } elseif (1 == $messageEntry->length) {
             $msg = $messageEntry->item(0)->textContent;
             $status['msg'] = $msg;
         }
@@ -1047,20 +1052,19 @@ class OneLogin_Saml2_Utils
     /**
      * Decrypts an encrypted element.
      *
-     * @param DOMElement     $encryptedData The encrypted data.
-     * @param XMLSecurityKey $inputKey      The decryption key.
-     *
-     * @return DOMElement  The decrypted element.
+     * @param DOMElement     $encryptedData the encrypted data
+     * @param XMLSecurityKey $inputKey      the decryption key
      *
      * @throws Exception
+     *
+     * @return DOMElement the decrypted element
      */
     public static function decryptElement(DOMElement $encryptedData, XMLSecurityKey $inputKey)
     {
-
         $enc = new XMLSecEnc();
 
         $enc->setNode($encryptedData);
-        $enc->type = $encryptedData->getAttribute("Type");
+        $enc->type = $encryptedData->getAttribute('Type');
 
         $symmetricKey = $enc->locateKey($encryptedData);
         if (!$symmetricKey) {
@@ -1073,7 +1077,7 @@ class OneLogin_Saml2_Utils
         $symmetricKeyInfo = $enc->locateKeyInfo($symmetricKey);
         if (!$symmetricKeyInfo) {
             throw new OneLogin_Saml2_ValidationError(
-                "Could not locate <dsig:KeyInfo> for the encrypted key.",
+                'Could not locate <dsig:KeyInfo> for the encrypted key.',
                 OneLogin_Saml2_ValidationError::KEYINFO_NOT_FOUND_IN_ENCRYPTED_DATA
             );
         }
@@ -1082,15 +1086,15 @@ class OneLogin_Saml2_Utils
         if ($symmetricKeyInfo->isEncrypted) {
             $symKeyInfoAlgo = $symmetricKeyInfo->getAlgorithm();
 
-            if ($symKeyInfoAlgo === XMLSecurityKey::RSA_OAEP_MGF1P && $inputKeyAlgo === XMLSecurityKey::RSA_1_5) {
+            if (XMLSecurityKey::RSA_OAEP_MGF1P === $symKeyInfoAlgo && XMLSecurityKey::RSA_1_5 === $inputKeyAlgo) {
                 $inputKeyAlgo = XMLSecurityKey::RSA_OAEP_MGF1P;
             }
 
             if ($inputKeyAlgo !== $symKeyInfoAlgo) {
                 throw new OneLogin_Saml2_ValidationError(
-                    'Algorithm mismatch between input key and key used to encrypt ' .
-                    ' the symmetric key for the message. Key was: ' .
-                    var_export($inputKeyAlgo, true) . '; message was: ' .
+                    'Algorithm mismatch between input key and key used to encrypt '.
+                    ' the symmetric key for the message. Key was: '.
+                    var_export($inputKeyAlgo, true).'; message was: '.
                     var_export($symKeyInfoAlgo, true),
                     OneLogin_Saml2_ValidationError::KEY_ALGORITHM_ERROR
                 );
@@ -1099,10 +1103,10 @@ class OneLogin_Saml2_Utils
             $encKey = $symmetricKeyInfo->encryptedCtx;
             $symmetricKeyInfo->key = $inputKey->key;
             $keySize = $symmetricKey->getSymmetricKeySize();
-            if ($keySize === null) {
+            if (null === $keySize) {
                 // To protect against "key oracle" attacks
                 throw new OneLogin_Saml2_ValidationError(
-                    'Unknown key size for encryption algorithm: ' . var_export($symmetricKey->type, true),
+                    'Unknown key size for encryption algorithm: '.var_export($symmetricKey->type, true),
                     OneLogin_Saml2_ValidationError::KEY_ALGORITHM_ERROR
                 );
             }
@@ -1112,7 +1116,7 @@ class OneLogin_Saml2_Utils
                 $encryptedKey = $encKey->getCipherValue();
                 $pkey = openssl_pkey_get_details($symmetricKeyInfo->key);
                 $pkey = sha1(serialize($pkey), true);
-                $key = sha1($encryptedKey . $pkey, true);
+                $key = sha1($encryptedKey.$pkey, true);
 
                 /* Make sure that the key has the correct length. */
                 if (strlen($key) > $keySize) {
@@ -1126,8 +1130,8 @@ class OneLogin_Saml2_Utils
             $symKeyAlgo = $symmetricKey->getAlgorithm();
             if ($inputKeyAlgo !== $symKeyAlgo) {
                 throw new OneLogin_Saml2_ValidationError(
-                    'Algorithm mismatch between input key and key in message. ' .
-                    'Key was: ' . var_export($inputKeyAlgo, true) . '; message was: ' .
+                    'Algorithm mismatch between input key and key in message. '.
+                    'Key was: '.var_export($inputKeyAlgo, true).'; message was: '.
                     var_export($symKeyAlgo, true),
                     OneLogin_Saml2_ValidationError::KEY_ALGORITHM_ERROR
                 );
@@ -1150,7 +1154,7 @@ class OneLogin_Saml2_Utils
         }
 
         $decryptedElement = $newDoc->firstChild->firstChild;
-        if ($decryptedElement === null) {
+        if (null === $decryptedElement) {
             throw new OneLogin_Saml2_ValidationError(
                 'Missing encrypted element.',
                 OneLogin_Saml2_ValidationError::MISSING_ENCRYPTED_ELEMENT
@@ -1160,17 +1164,17 @@ class OneLogin_Saml2_Utils
         return $decryptedElement;
     }
 
-     /**
-      * Converts a XMLSecurityKey to the correct algorithm.
-      *
-      * @param XMLSecurityKey $key The key.
-      * @param string $algorithm The desired algorithm.
-      * @param string $type Public or private key, defaults to public.
-      *
-      * @return XMLSecurityKey The new key.
-      *
-      * @throws Exception
-      */
+    /**
+     * Converts a XMLSecurityKey to the correct algorithm.
+     *
+     * @param XMLSecurityKey $key       the key
+     * @param string         $algorithm the desired algorithm
+     * @param string         $type      public or private key, defaults to public
+     *
+     * @throws Exception
+     *
+     * @return XMLSecurityKey the new key
+     */
     public static function castKey(XMLSecurityKey $key, $algorithm, $type = 'public')
     {
         assert('is_string($algorithm)');
@@ -1180,29 +1184,30 @@ class OneLogin_Saml2_Utils
             return $key;
         }
         $keyInfo = openssl_pkey_get_details($key->key);
-        if ($keyInfo === false) {
+        if (false === $keyInfo) {
             throw new Exception('Unable to get key details from XMLSecurityKey.');
         }
         if (!isset($keyInfo['key'])) {
             throw new Exception('Missing key in public key details.');
         }
-        $newKey = new XMLSecurityKey($algorithm, array('type'=>$type));
+        $newKey = new XMLSecurityKey($algorithm, ['type' => $type]);
         $newKey->loadKey($keyInfo['key']);
+
         return $newKey;
     }
 
     /**
      * Adds signature key and senders certificate to an element (Message or Assertion).
      *
-     * @param string|DomDocument $xml           The element we should sign
-     * @param string             $key           The private key
-     * @param string             $cert          The public
-     * @param string             $signAlgorithm Signature algorithm method
+     * @param string|DomDocument $xml             The element we should sign
+     * @param string             $key             The private key
+     * @param string             $cert            The public
+     * @param string             $signAlgorithm   Signature algorithm method
      * @param string             $digestAlgorithm Digest algorithm method
      *
-     * @return string
-     *
      * @throws Exception
+     *
+     * @return string
      */
     public static function addSign($xml, $key, $cert, $signAlgorithm = XMLSecurityKey::RSA_SHA1, $digestAlgorithm = XMLSecurityDSig::SHA1)
     {
@@ -1217,7 +1222,7 @@ class OneLogin_Saml2_Utils
         }
 
         /* Load the private key. */
-        $objKey = new XMLSecurityKey($signAlgorithm, array('type' => 'private'));
+        $objKey = new XMLSecurityKey($signAlgorithm, ['type' => 'private']);
         $objKey->loadKey($key, false);
 
         /* Get the EntityDescriptor node we should sign. */
@@ -1228,10 +1233,10 @@ class OneLogin_Saml2_Utils
         $objXMLSecDSig->setCanonicalMethod(XMLSecurityDSig::EXC_C14N);
 
         $objXMLSecDSig->addReferenceList(
-            array($rootNode),
+            [$rootNode],
             $digestAlgorithm,
-            array('http://www.w3.org/2000/09/xmldsig#enveloped-signature', XMLSecurityDSig::EXC_C14N),
-            array('id_name' => 'ID')
+            ['http://www.w3.org/2000/09/xmldsig#enveloped-signature', XMLSecurityDSig::EXC_C14N],
+            ['id_name' => 'ID']
         );
 
         $objXMLSecDSig->sign($objKey);
@@ -1240,10 +1245,10 @@ class OneLogin_Saml2_Utils
         $objXMLSecDSig->add509Cert($cert, true);
 
         $insertBefore = $rootNode->firstChild;
-        $messageTypes = array('AuthnRequest', 'Response', 'LogoutRequest','LogoutResponse');
+        $messageTypes = ['AuthnRequest', 'Response', 'LogoutRequest', 'LogoutResponse'];
         if (in_array($rootNode->localName, $messageTypes)) {
             $issuerNodes = self::query($dom, '/'.$rootNode->tagName.'/saml:Issuer');
-            if ($issuerNodes->length == 1) {
+            if (1 == $issuerNodes->length) {
                 $insertBefore = $issuerNodes->item(0)->nextSibling;
             }
         }
@@ -1267,15 +1272,15 @@ class OneLogin_Saml2_Utils
      * @param string|null    $xpath          The xpath of the signed element
      * @param array|null     $multiCerts     Multiple public certs
      *
-     * @return bool
-     *
      * @throws Exception
+     *
+     * @return bool
      */
     public static function validateSign($xml, $cert = null, $fingerprint = null, $fingerprintalg = 'sha1', $xpath = null, $multiCerts = null)
     {
         if ($xml instanceof DOMDocument) {
             $dom = clone $xml;
-        } else if ($xml instanceof DOMElement) {
+        } elseif ($xml instanceof DOMElement) {
             $dom = clone $xml->ownerDocument;
         } else {
             $dom = new DOMDocument();
@@ -1283,10 +1288,10 @@ class OneLogin_Saml2_Utils
         }
 
         $objXMLSecDSig = new XMLSecurityDSig();
-        $objXMLSecDSig->idKeys = array('ID');
+        $objXMLSecDSig->idKeys = ['ID'];
 
         if ($xpath) {
-            $nodeset = OneLogin_Saml2_Utils::query($dom, $xpath);
+            $nodeset = self::query($dom, $xpath);
             $objDSig = $nodeset->item(0);
             $objXMLSecDSig->sigNode = $objDSig;
         } else {
@@ -1321,24 +1326,24 @@ class OneLogin_Saml2_Utils
             // else I add the cert to the array in order to check
             // validate signatures with it and the with it and the
             // $fingerprint value
-            $multiCerts = array($cert);
+            $multiCerts = [$cert];
         }
 
         $valid = false;
         foreach ($multiCerts as $cert) {
             if (!empty($cert)) {
                 $objKey->loadKey($cert, false, true);
-                if ($objXMLSecDSig->verify($objKey) === 1) {
+                if (1 === $objXMLSecDSig->verify($objKey)) {
                     $valid = true;
                     break;
                 }
             } else {
                 if (!empty($fingerprint)) {
                     $domCert = $objKey->getX509Certificate();
-                    $domCertFingerprint = OneLogin_Saml2_Utils::calculateX509Fingerprint($domCert, $fingerprintalg);
-                    if (OneLogin_Saml2_Utils::formatFingerPrint($fingerprint) == $domCertFingerprint) {
+                    $domCertFingerprint = self::calculateX509Fingerprint($domCert, $fingerprintalg);
+                    if (self::formatFingerPrint($fingerprint) == $domCertFingerprint) {
                         $objKey->loadKey($domCert, false, true);
-                        if ($objXMLSecDSig->verify($objKey) === 1) {
+                        if (1 === $objXMLSecDSig->verify($objKey)) {
                             $valid = true;
                             break;
                         }
@@ -1346,6 +1351,7 @@ class OneLogin_Saml2_Utils
                 }
             }
         }
+
         return $valid;
     }
 
@@ -1358,11 +1364,11 @@ class OneLogin_Saml2_Utils
         }
 
         if ($retrieveParametersFromServer) {
-            $signedQuery = $messageType.'='.OneLogin_Saml2_Utils::extractOriginalQueryParam($messageType);
+            $signedQuery = $messageType.'='.self::extractOriginalQueryParam($messageType);
             if (isset($getData['RelayState'])) {
-                $signedQuery .= '&RelayState='.OneLogin_Saml2_Utils::extractOriginalQueryParam('RelayState');
+                $signedQuery .= '&RelayState='.self::extractOriginalQueryParam('RelayState');
             }
-            $signedQuery .= '&SigAlg='.OneLogin_Saml2_Utils::extractOriginalQueryParam('SigAlg');
+            $signedQuery .= '&SigAlg='.self::extractOriginalQueryParam('SigAlg');
         } else {
             $signedQuery = $messageType.'='.urlencode($getData[$messageType]);
             if (isset($getData['RelayState'])) {
@@ -1371,15 +1377,15 @@ class OneLogin_Saml2_Utils
             $signedQuery .= '&SigAlg='.urlencode($signAlg);
         }
 
-        if ($messageType == "SAMLRequest") {
-            $strMessageType = "Logout Request";
+        if ('SAMLRequest' == $messageType) {
+            $strMessageType = 'Logout Request';
         } else {
-            $strMessageType = "Logout Response";
+            $strMessageType = 'Logout Response';
         }
         $existsMultiX509Sign = isset($idpData['x509certMulti']) && isset($idpData['x509certMulti']['signing']) && !empty($idpData['x509certMulti']['signing']);
         if ((!isset($idpData['x509cert']) || empty($idpData['x509cert'])) && !$existsMultiX509Sign) {
             throw new OneLogin_Saml2_Error(
-                "In order to validate the sign on the ".$strMessageType.", the x509cert of the IdP is required",
+                'In order to validate the sign on the '.$strMessageType.', the x509cert of the IdP is required',
                 OneLogin_Saml2_Error::CERT_NOT_FOUND
             );
         }
@@ -1387,33 +1393,34 @@ class OneLogin_Saml2_Utils
         if ($existsMultiX509Sign) {
             $multiCerts = $idpData['x509certMulti']['signing'];
         } else {
-            $multiCerts = array($idpData['x509cert']);
+            $multiCerts = [$idpData['x509cert']];
         }
 
         $signatureValid = false;
         foreach ($multiCerts as $cert) {
-            $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, array('type' => 'public'));
+            $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, ['type' => 'public']);
             $objKey->loadKey($cert, false, true);
 
-            if ($signAlg != XMLSecurityKey::RSA_SHA1) {
+            if (XMLSecurityKey::RSA_SHA1 != $signAlg) {
                 try {
-                    $objKey = OneLogin_Saml2_Utils::castKey($objKey, $signAlg, 'public');
+                    $objKey = self::castKey($objKey, $signAlg, 'public');
                 } catch (Exception $e) {
                     $ex = new OneLogin_Saml2_ValidationError(
-                        "Invalid signAlg in the recieved ".$strMessageType,
+                        'Invalid signAlg in the recieved '.$strMessageType,
                         OneLogin_Saml2_ValidationError::INVALID_SIGNATURE
                     );
-                    if (count($multiCerts) == 1) {
+                    if (1 == count($multiCerts)) {
                         throw $ex;
                     }
                 }
             }
 
-            if ($objKey->verifySignature($signedQuery, base64_decode($_GET['Signature'])) === 1) {
+            if (1 === $objKey->verifySignature($signedQuery, base64_decode($_GET['Signature']))) {
                 $signatureValid = true;
                 break;
             }
         }
+
         return $signatureValid;
     }
 }

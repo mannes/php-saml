@@ -6,9 +6,9 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->_settings = new OneLogin_Saml_Settings;
+        $this->_settings = new OneLogin_Saml_Settings();
 
-        $settingsDir = TEST_ROOT .'/settings/';
+        $settingsDir = TEST_ROOT.'/settings/';
         include $settingsDir.'settings1.php';
 
         $this->_settings->spIssuer = $settingsInfo['sp']['entityId'];
@@ -18,12 +18,12 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
         $cert = $settingsInfo['idp']['x509cert'];
 
-        $x509cert = str_replace(array("\x0D", "\r", "\n"), "", $cert);
+        $x509cert = str_replace(["\x0D", "\r", "\n"], '', $cert);
         if (!empty($x509cert)) {
-            $x509cert = str_replace('-----BEGIN CERTIFICATE-----', "", $x509cert);
-            $x509cert = str_replace('-----END CERTIFICATE-----', "", $x509cert);
+            $x509cert = str_replace('-----BEGIN CERTIFICATE-----', '', $x509cert);
+            $x509cert = str_replace('-----END CERTIFICATE-----', '', $x509cert);
             $x509cert = str_replace(' ', '', $x509cert);
-            
+
             $x509cert = "-----BEGIN CERTIFICATE-----\n".chunk_split($x509cert, 64, "\n")."-----END CERTIFICATE-----\n";
         }
 
@@ -32,7 +32,7 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testReturnNameId()
     {
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
+        $xml = file_get_contents(TEST_ROOT.'/data/responses/response1.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $xml);
 
         $this->assertEquals('support@onelogin.com', $response->getNameId());
@@ -42,23 +42,23 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testGetAttributes()
     {
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
+        $xml = file_get_contents(TEST_ROOT.'/data/responses/response1.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $xml);
 
-        $expectedAttributes = array(
-            'uid' => array(
-                'demo'
-            ),
-            'another_value' => array(
-                'value'
-            ),
-        );
+        $expectedAttributes = [
+            'uid' => [
+                'demo',
+            ],
+            'another_value' => [
+                'value',
+            ],
+        ];
         $this->assertEquals($expectedAttributes, $response->getAttributes());
 
         $this->assertEquals($response->getAttributes(), $response->get_saml_attributes());
 
         // An assertion that has no attributes should return an empty array when asked for the attributes
-        $assertion = file_get_contents(TEST_ROOT . '/data/responses/response2.xml.base64');
+        $assertion = file_get_contents(TEST_ROOT.'/data/responses/response2.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $assertion);
 
         $this->assertEmpty($response->getAttributes());
@@ -66,7 +66,7 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testOnlyRetrieveAssertionWithIDThatMatchesSignatureReference()
     {
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/wrapped_response_2.xml.base64');
+        $xml = file_get_contents(TEST_ROOT.'/data/responses/wrapped_response_2.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $xml);
         try {
             $nameId = $response->getNameId();
@@ -78,7 +78,7 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testDoesNotAllowSignatureWrappingAttack()
     {
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/response4.xml.base64');
+        $xml = file_get_contents(TEST_ROOT.'/data/responses/response4.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $xml);
 
         $this->assertEquals('test@onelogin.com', $response->getNameId());
@@ -86,14 +86,14 @@ class OneLogin_Saml_ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testGetSessionNotOnOrAfter()
     {
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
+        $xml = file_get_contents(TEST_ROOT.'/data/responses/response1.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $xml);
 
         $this->assertEquals(1290203857, $response->getSessionNotOnOrAfter());
-        
+
         // An assertion that do not specified Session timeout should return NULL
-        
-        $xml = file_get_contents(TEST_ROOT . '/data/responses/response2.xml.base64');
+
+        $xml = file_get_contents(TEST_ROOT.'/data/responses/response2.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $xml);
 
         $this->assertNull($response->getSessionNotOnOrAfter());

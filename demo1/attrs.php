@@ -8,9 +8,9 @@ if (isset($_SESSION['samlUserdata'])) {
         echo 'You have the following attributes:<br>';
         echo '<table><thead><th>Name</th><th>Values</th></thead><tbody>';
         foreach ($attributes as $attributeName => $attributeValues) {
-            echo '<tr><td>' . htmlentities($attributeName) . '</td><td><ul>';
+            echo '<tr><td>'.htmlentities($attributeName).'</td><td><ul>';
             foreach ($attributeValues as $attributeValue) {
-                echo '<li>' . htmlentities($attributeValue) . '</li>';
+                echo '<li>'.htmlentities($attributeValue).'</li>';
             }
             echo '</ul></td></tr>';
         }

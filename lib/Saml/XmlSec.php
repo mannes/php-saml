@@ -7,12 +7,14 @@ class OneLogin_Saml_XmlSec
 {
     /**
      * A SamlResponse class provided to the constructor.
+     *
      * @var OneLogin_Saml_Settings
      */
     protected $_settings;
 
     /**
      * The document to be tested.
+     *
      * @var DomDocument
      */
     protected $_document;
@@ -20,9 +22,9 @@ class OneLogin_Saml_XmlSec
     /**
      * Construct the SamlXmlSec object.
      *
-     * @param OneLogin_Saml_Settings $settings A SamlResponse settings object containing the necessary
-     *                                          x509 certicate to test the document.
-     * @param OneLogin_Saml_Response $response The document to test.
+     * @param OneLogin_Saml_Settings $settings a SamlResponse settings object containing the necessary
+     *                                         x509 certicate to test the document
+     * @param OneLogin_Saml_Response $response the document to test
      */
     public function __construct(OneLogin_Saml_Settings $settings, OneLogin_Saml_Response $response)
     {
@@ -31,19 +33,20 @@ class OneLogin_Saml_XmlSec
     }
 
     /**
-     * Verify that the document only contains a single Assertion
+     * Verify that the document only contains a single Assertion.
      *
-     * @return bool TRUE if the document passes.
+     * @return bool TRUE if the document passes
      */
     public function validateNumAssertions()
     {
         $rootNode = $this->_document;
         $assertionNodes = $rootNode->getElementsByTagName('Assertion');
-        return ($assertionNodes->length == 1);
+
+        return 1 == $assertionNodes->length;
     }
 
     /**
-     * Verify that the document is still valid according
+     * Verify that the document is still valid according.
      *
      * @return bool
      */
@@ -51,9 +54,9 @@ class OneLogin_Saml_XmlSec
     {
         $rootNode = $this->_document;
         $timestampNodes = $rootNode->getElementsByTagName('Conditions');
-        for ($i = 0; $i < $timestampNodes->length; $i++) {
-            $nbAttribute = $timestampNodes->item($i)->attributes->getNamedItem("NotBefore");
-            $naAttribute = $timestampNodes->item($i)->attributes->getNamedItem("NotOnOrAfter");
+        for ($i = 0; $i < $timestampNodes->length; ++$i) {
+            $nbAttribute = $timestampNodes->item($i)->attributes->getNamedItem('NotBefore');
+            $naAttribute = $timestampNodes->item($i)->attributes->getNamedItem('NotOnOrAfter');
             if ($nbAttribute && strtotime($nbAttribute->textContent) > time()) {
                 return false;
             }
@@ -61,13 +64,14 @@ class OneLogin_Saml_XmlSec
                 return false;
             }
         }
+
         return true;
     }
 
     /**
-     * @return bool
-     *
      * @throws Exception
+     *
+     * @return bool
      */
     public function isValid()
     {
@@ -88,7 +92,7 @@ class OneLogin_Saml_XmlSec
             throw new Exception('Cannot locate Signature Node');
         }
         $objXMLSecDSig->canonicalizeSignedInfo();
-        $objXMLSecDSig->idKeys = array('ID');
+        $objXMLSecDSig->idKeys = ['ID'];
 
         $objKey = $objXMLSecDSig->locateKey();
         if (!$objKey) {
@@ -105,6 +109,6 @@ class OneLogin_Saml_XmlSec
 
         $objKey->loadKey($this->_settings->idpPublicCertificate, false, true);
 
-        return ($objXMLSecDSig->verify($objKey) === 1);
+        return 1 === $objXMLSecDSig->verify($objKey);
     }
 }

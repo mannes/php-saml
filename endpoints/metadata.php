@@ -1,9 +1,8 @@
 <?php
- 
-/**
- *  SP Metadata Endpoint
- */
 
+/**
+ *  SP Metadata Endpoint.
+ */
 require_once dirname(__DIR__).'/_toolkit_loader.php';
 
 try {

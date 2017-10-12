@@ -16,9 +16,9 @@ class OneLogin_Saml_Metadata
     }
 
     /**
-     * @return string
-     *
      * @throws OneLogin_Saml2_Error
+     *
+     * @return string
      */
     public function getXml()
     {
@@ -33,6 +33,7 @@ class OneLogin_Saml_Metadata
         $timestamp = time() + self::VALIDITY_SECONDS;
         $date = new DateTime("@$timestamp", new DateTimeZone('UTC'));
         $time = $date->format("Y-m-d\TH:i:s\Z");
+
         return $time;
     }
 }

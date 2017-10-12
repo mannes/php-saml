@@ -1,62 +1,61 @@
 <?php
 
 /**
- * IdP Metadata Parser of OneLogin PHP Toolkit
- *
+ * IdP Metadata Parser of OneLogin PHP Toolkit.
  */
-
 class OneLogin_Saml2_IdPMetadataParser
 {
     /**
-     * Get IdP Metadata Info from URL
+     * Get IdP Metadata Info from URL.
      *
-     * @param string $url                   URL where the IdP metadata is published
-     * @param string $entityId              Entity Id of the desired IdP, if no
-     *                                      entity Id is provided and the XML
-     *                                      metadata contains more than one
-     *                                      IDPSSODescriptor, the first is returned
-     * @param string $desiredNameIdFormat   If available on IdP metadata, use that nameIdFormat
+     * @param string $url                 URL where the IdP metadata is published
+     * @param string $entityId            Entity Id of the desired IdP, if no
+     *                                    entity Id is provided and the XML
+     *                                    metadata contains more than one
+     *                                    IDPSSODescriptor, the first is returned
+     * @param string $desiredNameIdFormat If available on IdP metadata, use that nameIdFormat
      *
      * @return array metadata info in php-saml settings format
      */
     public static function parseRemoteXML($url, $entityId = null, $desiredNameIdFormat = null)
     {
-        $metadataInfo = array();
+        $metadataInfo = [];
 
         try {
             $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_FAILONERROR, 1);
 
             $xml = curl_exec($ch);
-            if ($xml !== false) {
+            if (false !== $xml) {
                 $metadataInfo = self::parseXML($xml, $entityId);
             } else {
                 throw new Exception(curl_error($ch), curl_errno($ch));
             }
         } catch (Exception $e) {
         }
+
         return $metadataInfo;
     }
 
     /**
-     * Get IdP Metadata Info from File
+     * Get IdP Metadata Info from File.
      *
-     * @param string $filepath              File path
-     * @param string $entityId              Entity Id of the desired IdP, if no
-     *                                      entity Id is provided and the XML
-     *                                      metadata contains more than one
-     *                                      IDPSSODescriptor, the first is returned
-     * @param string $desiredNameIdFormat   If available on IdP metadata, use that nameIdFormat
+     * @param string $filepath            File path
+     * @param string $entityId            Entity Id of the desired IdP, if no
+     *                                    entity Id is provided and the XML
+     *                                    metadata contains more than one
+     *                                    IDPSSODescriptor, the first is returned
+     * @param string $desiredNameIdFormat If available on IdP metadata, use that nameIdFormat
      *
      * @return array metadata info in php-saml settings format
      */
     public static function parseFileXML($filepath, $entityId = null, $desiredNameIdFormat = null)
     {
-        $metadataInfo = array();
+        $metadataInfo = [];
 
         try {
             if (file_exists($filepath)) {
@@ -65,24 +64,25 @@ class OneLogin_Saml2_IdPMetadataParser
             }
         } catch (Exception $e) {
         }
+
         return $metadataInfo;
     }
 
     /**
-     * Get IdP Metadata Info from URL
+     * Get IdP Metadata Info from URL.
      *
-     * @param string $xml                   XML that contains IdP metadata
-     * @param string $entityId              Entity Id of the desired IdP, if no
-     *                                      entity Id is provided and the XML
-     *                                      metadata contains more than one
-     *                                      IDPSSODescriptor, the first is returned
-     * @param string $desiredNameIdFormat   If available on IdP metadata, use that nameIdFormat
+     * @param string $xml                 XML that contains IdP metadata
+     * @param string $entityId            Entity Id of the desired IdP, if no
+     *                                    entity Id is provided and the XML
+     *                                    metadata contains more than one
+     *                                    IDPSSODescriptor, the first is returned
+     * @param string $desiredNameIdFormat If available on IdP metadata, use that nameIdFormat
      *
      * @return array metadata info in php-saml settings format
      */
     public static function parseXML($xml, $entityId = null, $desiredNameIdFormat = null)
     {
-        $metadataInfo = array();
+        $metadataInfo = [];
 
         $dom = new DOMDocument();
         $dom->preserveWhiteSpace = false;
@@ -95,14 +95,14 @@ class OneLogin_Saml2_IdPMetadataParser
 
             $customIdPStr = '';
             if (!empty($entityId)) {
-                $customIdPStr = '[@entityID="' . $entityId . '"]';
+                $customIdPStr = '[@entityID="'.$entityId.'"]';
             }
-            $idpDescryptorXPath = '//md:EntityDescriptor' . $customIdPStr . '/md:IDPSSODescriptor';
+            $idpDescryptorXPath = '//md:EntityDescriptor'.$customIdPStr.'/md:IDPSSODescriptor';
 
             $idpDescriptorNodes = OneLogin_Saml2_Utils::query($dom, $idpDescryptorXPath);
 
             if (isset($idpDescriptorNodes) && $idpDescriptorNodes->length > 0) {
-                $metadataInfo['idp'] = array();
+                $metadataInfo['idp'] = [];
 
                 $idpDescriptor = $idpDescriptorNodes->item(0);
 
@@ -119,10 +119,10 @@ class OneLogin_Saml2_IdPMetadataParser
                     $ssoNodes = OneLogin_Saml2_Utils::query($dom, './md:SingleSignOnService', $idpDescriptor);
                 }
                 if ($ssoNodes->length > 0) {
-                    $metadataInfo['idp']['singleSignOnService'] = array(
+                    $metadataInfo['idp']['singleSignOnService'] = [
                         'url' => $ssoNodes->item(0)->getAttribute('Location'),
-                        'binding' => $ssoNodes->item(0)->getAttribute('Binding')
-                    );
+                        'binding' => $ssoNodes->item(0)->getAttribute('Binding'),
+                    ];
                 }
 
                 $sloNodes = OneLogin_Saml2_Utils::query($dom, './md:SingleLogoutService[@Binding="'.OneLogin_Saml2_Constants::BINDING_HTTP_REDIRECT.'"]', $idpDescriptor);
@@ -130,10 +130,10 @@ class OneLogin_Saml2_IdPMetadataParser
                     $sloNodes = OneLogin_Saml2_Utils::query($dom, './md:SingleLogoutService', $idpDescriptor);
                 }
                 if ($sloNodes->length > 0) {
-                    $metadataInfo['idp']['singleLogoutService'] = array(
+                    $metadataInfo['idp']['singleLogoutService'] = [
                         'url' => $sloNodes->item(0)->getAttribute('Location'),
-                        'binding' => $sloNodes->item(0)->getAttribute('Binding')
-                    );
+                        'binding' => $sloNodes->item(0)->getAttribute('Binding'),
+                    ];
                 }
 
                 $keyDescriptorCertSigningNodes = OneLogin_Saml2_Utils::query($dom, './md:KeyDescriptor[not(contains(@use, "encryption"))]/ds:KeyInfo/ds:X509Data/ds:X509Certificate', $idpDescriptor);
@@ -141,22 +141,22 @@ class OneLogin_Saml2_IdPMetadataParser
                 $keyDescriptorCertEncryptionNodes = OneLogin_Saml2_Utils::query($dom, './md:KeyDescriptor[not(contains(@use, "signing"))]/ds:KeyInfo/ds:X509Data/ds:X509Certificate', $idpDescriptor);
 
                 if (!empty($keyDescriptorCertSigningNodes) || !empty($keyDescriptorCertEncryptionNodes)) {
-                    $metadataInfo['idp']['x509certMulti'] = array();
+                    $metadataInfo['idp']['x509certMulti'] = [];
                     if (!empty($keyDescriptorCertSigningNodes)) {
-                        $idpInfo['x509certMulti']['signing'] = array();
+                        $idpInfo['x509certMulti']['signing'] = [];
                         foreach ($keyDescriptorCertSigningNodes as $keyDescriptorCertSigningNode) {
                             $metadataInfo['idp']['x509certMulti']['signing'][] = OneLogin_Saml2_Utils::formatCert($keyDescriptorCertSigningNode->nodeValue, false);
                         }
                     }
                     if (!empty($keyDescriptorCertEncryptionNodes)) {
-                        $idpInfo['x509certMulti']['encryption'] = array();
+                        $idpInfo['x509certMulti']['encryption'] = [];
                         foreach ($keyDescriptorCertEncryptionNodes as $keyDescriptorCertEncryptionNode) {
                             $metadataInfo['idp']['x509certMulti']['encryption'][] = OneLogin_Saml2_Utils::formatCert($keyDescriptorCertEncryptionNode->nodeValue, false);
                         }
                     }
 
                     $idpCertdata = $metadataInfo['idp']['x509certMulti'];
-                    if (count($idpCertdata) == 1 || ((isset($idpCertdata['signing']) && count($idpCertdata['signing']) == 1) && isset($idpCertdata['encryption']) && count($idpCertdata['encryption']) == 1 && strcmp($idpCertdata['signing'][0], $idpCertdata['encryption'][0]) == 0)) {
+                    if (1 == count($idpCertdata) || ((isset($idpCertdata['signing']) && 1 == count($idpCertdata['signing'])) && isset($idpCertdata['encryption']) && 1 == count($idpCertdata['encryption']) && 0 == strcmp($idpCertdata['signing'][0], $idpCertdata['encryption'][0]))) {
                         if (isset($metadataInfo['idp']['x509certMulti']['signing'][0])) {
                             $metadataInfo['idp']['x509cert'] = $metadataInfo['idp']['x509certMulti']['signing'][0];
                         } else {
@@ -171,7 +171,7 @@ class OneLogin_Saml2_IdPMetadataParser
                     $metadataInfo['sp']['NameIDFormat'] = $nameIdFormatNodes->item(0)->nodeValue;
                     if (!empty($desiredNameIdFormat)) {
                         foreach ($nameIdFormatNodes as $nameIdFormatNode) {
-                            if (strcmp($nameIdFormatNode->nodeValue, $desiredNameIdFormat) == 0) {
+                            if (0 == strcmp($nameIdFormatNode->nodeValue, $desiredNameIdFormat)) {
                                 $metadataInfo['sp']['NameIDFormat'] = $nameIdFormatNode->nodeValue;
                                 break;
                             }
@@ -187,10 +187,10 @@ class OneLogin_Saml2_IdPMetadataParser
     }
 
     /**
-     * Inject metadata info into php-saml settings array
+     * Inject metadata info into php-saml settings array.
      *
-     * @param string $settings      php-saml settings array
-     * @param string $metadataInfo  array metadata info
+     * @param string $settings     php-saml settings array
+     * @param string $metadataInfo array metadata info
      *
      * @return array settings
      */

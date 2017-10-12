@@ -2,7 +2,6 @@
 
 class OneLogin_Saml_AuthRequest
 {
-
     /**
      * @var OneLogin_Saml2_Auth object
      */
@@ -25,21 +24,22 @@ class OneLogin_Saml_AuthRequest
      *
      * @param string|null $returnTo
      *
-     * @return string
-     *
      * @throws OneLogin_Saml2_Error
+     *
+     * @return string
      */
     public function getRedirectUrl($returnTo = null)
     {
         $settings = $this->auth->getSettings();
         $authnRequest = new OneLogin_Saml2_AuthnRequest($settings);
-        $parameters = array('SAMLRequest' => $authnRequest->getRequest());
+        $parameters = ['SAMLRequest' => $authnRequest->getRequest()];
         if (!empty($returnTo)) {
             $parameters['RelayState'] = $returnTo;
         } else {
             $parameters['RelayState'] = OneLogin_Saml2_Utils::getSelfRoutedURLNoQuery();
         }
         $url = OneLogin_Saml2_Utils::redirect($this->auth->getSSOurl(), $parameters, true);
+
         return $url;
     }
 
@@ -58,6 +58,7 @@ class OneLogin_Saml_AuthRequest
     {
         $date = new DateTime('now', new DateTimeZone('UTC'));
         $timestamp = $date->format("Y-m-d\TH:i:s\Z");
+
         return $timestamp;
     }
 }

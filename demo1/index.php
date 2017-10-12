@@ -1,8 +1,7 @@
 <?php
 /**
- *  SAML Handler
+ *  SAML Handler.
  */
-
 session_start();
 
 require_once dirname(__DIR__).'/_toolkit_loader.php';
@@ -14,20 +13,19 @@ $auth = new OneLogin_Saml2_Auth($settingsInfo);
 if (isset($_GET['sso'])) {
     $auth->login();
 
-    # If AuthNRequest ID need to be saved in order to later validate it, do instead
-    # $ssoBuiltUrl = $auth->login(null, array(), false, false, true);
-    # $_SESSION['AuthNRequestID'] = $auth->getLastRequestID();
-    # header('Pragma: no-cache');
-    # header('Cache-Control: no-cache, must-revalidate');
-    # header('Location: ' . $ssoBuiltUrl);
-    # exit();
-
-} else if (isset($_GET['sso2'])) {
+    // If AuthNRequest ID need to be saved in order to later validate it, do instead
+    // $ssoBuiltUrl = $auth->login(null, array(), false, false, true);
+    // $_SESSION['AuthNRequestID'] = $auth->getLastRequestID();
+    // header('Pragma: no-cache');
+    // header('Cache-Control: no-cache, must-revalidate');
+    // header('Location: ' . $ssoBuiltUrl);
+    // exit();
+} elseif (isset($_GET['sso2'])) {
     $returnTo = $spBaseUrl.'/demo1/attrs.php';
     $auth->login($returnTo);
-} else if (isset($_GET['slo'])) {
+} elseif (isset($_GET['slo'])) {
     $returnTo = null;
-    $paramters = array();
+    $paramters = [];
     $nameId = null;
     $sessionIndex = null;
     $nameIdFormat = null;
@@ -44,15 +42,14 @@ if (isset($_GET['sso'])) {
 
     $auth->logout($returnTo, $paramters, $nameId, $sessionIndex, false, $nameIdFormat);
 
-    # If LogoutRequest ID need to be saved in order to later validate it, do instead
-    # $sloBuiltUrl = $auth->logout(null, $paramters, $nameId, $sessionIndex, true);
-    # $_SESSION['LogoutRequestID'] = $auth->getLastRequestID();
-    # header('Pragma: no-cache');
-    # header('Cache-Control: no-cache, must-revalidate');
-    # header('Location: ' . $sloBuiltUrl);
-    # exit();
-
-} else if (isset($_GET['acs'])) {
+    // If LogoutRequest ID need to be saved in order to later validate it, do instead
+    // $sloBuiltUrl = $auth->logout(null, $paramters, $nameId, $sessionIndex, true);
+    // $_SESSION['LogoutRequestID'] = $auth->getLastRequestID();
+    // header('Pragma: no-cache');
+    // header('Cache-Control: no-cache, must-revalidate');
+    // header('Location: ' . $sloBuiltUrl);
+    // exit();
+} elseif (isset($_GET['acs'])) {
     if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
         $requestID = $_SESSION['AuthNRequestID'];
     } else {
@@ -68,7 +65,7 @@ if (isset($_GET['sso'])) {
     }
 
     if (!$auth->isAuthenticated()) {
-        echo "<p>Not authenticated</p>";
+        echo '<p>Not authenticated</p>';
         exit();
     }
 
@@ -80,7 +77,7 @@ if (isset($_GET['sso'])) {
     if (isset($_POST['RelayState']) && OneLogin_Saml2_Utils::getSelfURL() != $_POST['RelayState']) {
         $auth->redirectTo($_POST['RelayState']);
     }
-} else if (isset($_GET['sls'])) {
+} elseif (isset($_GET['sls'])) {
     if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
         $requestID = $_SESSION['LogoutRequestID'];
     } else {
@@ -102,9 +99,9 @@ if (isset($_SESSION['samlUserdata'])) {
         echo 'You have the following attributes:<br>';
         echo '<table><thead><th>Name</th><th>Values</th></thead><tbody>';
         foreach ($attributes as $attributeName => $attributeValues) {
-            echo '<tr><td>' . htmlentities($attributeName) . '</td><td><ul>';
+            echo '<tr><td>'.htmlentities($attributeName).'</td><td><ul>';
             foreach ($attributeValues as $attributeValue) {
-                echo '<li>' . htmlentities($attributeValue) . '</li>';
+                echo '<li>'.htmlentities($attributeValue).'</li>';
             }
             echo '</ul></td></tr>';
         }

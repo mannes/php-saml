@@ -6,7 +6,6 @@
  * After a successful authorization, the browser will be directed to this
  * link where it will send a certified response via $_POST.
  */
-
 $settings = null;
 require 'settings.php';
 
@@ -14,15 +13,15 @@ $samlResponse = new OneLogin_Saml_Response($settings, $_POST['SAMLResponse']);
 
 try {
     if ($samlResponse->isValid()) {
-        echo 'You are: ' . $samlResponse->getNameId() . '<br>';
+        echo 'You are: '.$samlResponse->getNameId().'<br>';
         $attributes = $samlResponse->getAttributes();
         if (!empty($attributes)) {
             echo 'You have the following attributes:<br>';
             echo '<table><thead><th>Name</th><th>Values</th></thead><tbody>';
             foreach ($attributes as $attributeName => $attributeValues) {
-                echo '<tr><td>' . htmlentities($attributeName) . '</td><td><ul>';
+                echo '<tr><td>'.htmlentities($attributeName).'</td><td><ul>';
                 foreach ($attributeValues as $attributeValue) {
-                    echo '<li>' . htmlentities($attributeValue) . '</li>';
+                    echo '<li>'.htmlentities($attributeValue).'</li>';
                 }
                 echo '</ul></td></tr>';
             }
@@ -33,5 +32,5 @@ try {
         echo 'Invalid SAML response.';
     }
 } catch (Exception $e) {
-    echo 'Invalid SAML response: ' . $e->getMessage();
+    echo 'Invalid SAML response: '.$e->getMessage();
 }

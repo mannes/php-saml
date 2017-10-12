@@ -1,7 +1,7 @@
 <?php
- 
+
 /**
- * Error class of OneLogin PHP Toolkit
+ * Error class of OneLogin PHP Toolkit.
  *
  * Defines the Error class
  */
@@ -21,17 +21,17 @@ class OneLogin_Saml2_Error extends Exception
     const SAML_RESPONSE_NOT_FOUND = 8;
     const SAML_LOGOUTMESSAGE_NOT_FOUND = 9;
     const SAML_LOGOUTREQUEST_INVALID = 10;
-    const SAML_LOGOUTRESPONSE_INVALID  = 11;
+    const SAML_LOGOUTRESPONSE_INVALID = 11;
     const SAML_SINGLE_LOGOUT_NOT_SUPPORTED = 12;
     const PRIVATE_KEY_NOT_FOUND = 13;
     const UNSUPPORTED_SETTINGS_OBJECT = 14;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param string     $msg  Describes the error.
-     * @param int        $code The code error (defined in the error class).
-     * @param array|null $args Arguments used in the message that describes the error.
+     * @param string     $msg  describes the error
+     * @param int        $code the code error (defined in the error class)
+     * @param array|null $args arguments used in the message that describes the error
      */
     public function __construct($msg, $code = 0, $args = null)
     {
@@ -50,7 +50,7 @@ class OneLogin_Saml2_Error extends Exception
  */
 class OneLogin_Saml2_ValidationError extends Exception
 {
-    # Validation Errors
+    // Validation Errors
     const UNSUPPORTED_SAML_VERSION = 0;
     const MISSING_ID = 1;
     const WRONG_NUMBER_OF_ASSERTIONS = 2;
@@ -101,13 +101,12 @@ class OneLogin_Saml2_ValidationError extends Exception
     const KEY_ALGORITHM_ERROR = 47;
     const MISSING_ENCRYPTED_ELEMENT = 48;
 
-
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param string     $msg  Describes the error.
-     * @param int        $code The code error (defined in the error class).
-     * @param array|null $args Arguments used in the message that describes the error.
+     * @param string     $msg  describes the error
+     * @param int        $code the code error (defined in the error class)
+     * @param array|null $args arguments used in the message that describes the error
      */
     public function __construct($msg, $code = 0, $args = null)
     {

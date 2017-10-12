@@ -1,9 +1,8 @@
 <?php
 
 /**
- *  SP Assertion Consumer Service Endpoint
+ *  SP Assertion Consumer Service Endpoint.
  */
-
 session_start();
 
 require_once dirname(__DIR__).'/_toolkit_loader.php';
@@ -20,7 +19,7 @@ if (!empty($errors)) {
 }
 
 if (!$auth->isAuthenticated()) {
-    echo "<p>Not authenticated</p>";
+    echo '<p>Not authenticated</p>';
     exit();
 }
 

@@ -5,12 +5,13 @@
  * PHP version 5
  *
  * @category  PHP
- * @package   PHP_CodeSniffer
+ *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @author    Marc McIntyre <mmcintyre@squiz.net>
  * @copyright 2006-2012 Squiz Pty Ltd (ABN 77 084 670 600)
  * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
- * @link      http://pear.php.net/package/PHP_CodeSniffer
+ *
+ * @see      http://pear.php.net/package/PHP_CodeSniffer
  */
 
 /**
@@ -19,18 +20,18 @@
  * Checks that the file does not end with a closing tag.
  *
  * @category  PHP
- * @package   PHP_CodeSniffer
+ *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @author    Marc McIntyre <mmcintyre@squiz.net>
  * @copyright 2006-2012 Squiz Pty Ltd (ABN 77 084 670 600)
  * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ *
  * @version   Release: 1.5.2
- * @link      http://pear.php.net/package/PHP_CodeSniffer
+ *
+ * @see      http://pear.php.net/package/PHP_CodeSniffer
  */
 class ZendModStandard_Sniffs_Files_ClosingTagSniff implements PHP_CodeSniffer_Sniff
 {
-
-
     /**
      * Returns an array of tokens this test wants to listen for.
      *
@@ -38,26 +39,24 @@ class ZendModStandard_Sniffs_Files_ClosingTagSniff implements PHP_CodeSniffer_Sn
      */
     public function register()
     {
-        return array(T_CLOSE_TAG);
+        return [T_CLOSE_TAG];
+    }
 
-    }//end register()
-
+    //end register()
 
     /**
      * Processes this sniff, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token in
-     *                                        the stack passed in $tokens.
-     *
-     * @return void
+     * @param PHP_CodeSniffer_File $phpcsFile the file being scanned
+     * @param int                  $stackPtr  the position of the current token in
+     *                                        the stack passed in $tokens
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
         $next = $phpcsFile->findNext(T_INLINE_HTML, ($stackPtr + 1), null, true);
-        if ($next !== false) {
+        if (false !== $next) {
             return;
         }
 
@@ -65,20 +64,17 @@ class ZendModStandard_Sniffs_Files_ClosingTagSniff implements PHP_CodeSniffer_Sn
         // potentially remaining is inline HTML. Now we need to figure out
         // whether or not it's just a bunch of whitespace.
         $content = '';
-        for ($i = ($stackPtr + 1); $i < $phpcsFile->numTokens; $i++) {
+        for ($i = ($stackPtr + 1); $i < $phpcsFile->numTokens; ++$i) {
             $content .= $tokens[$i]['content'];
         }
 
         // Check if the remaining inline HTML is just whitespace.
         $content = trim($content);
-        if (empty($content) === true) {
+        if (true === empty($content)) {
             $error = 'A closing tag is not permitted at the end of a PHP file';
             $phpcsFile->addError($error, $stackPtr, 'NotAllowed');
         }
+    }
 
-    }//end process()
-
-
+    //end process()
 }//end class
-
-?>
