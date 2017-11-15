@@ -171,15 +171,16 @@ class OneLogin_Saml2_Auth
     /**
      * Process the SAML Response sent by the IdP.
      *
+     * @param string $samlResponse
      * @param string|null $requestId The ID of the AuthNRequest sent by this SP to the IdP
      *
      * @throws OneLogin_Saml2_Error
      */
-    public function processResponse(Request $request, $requestId = null)
+    public function processResponse($samlResponse, $requestId = null)
     {
         $this->_errors = array();
         $this->_errorReason = null;
-        if (null !== ($samlResponse = $request->get('SAMLResponse', null))) {
+        if (null !== $samlResponse) {
             // AuthnResponse -- HTTP_POST Binding
             $response = new OneLogin_Saml2_Response($this->_settings, $samlResponse);
             $this->_lastResponse = $response->getXMLDocument();
@@ -211,6 +212,7 @@ class OneLogin_Saml2_Auth
     /**
      * Process the SAML Logout Response / Logout Request sent by the IdP.
      *
+     * @param Request     $request
      * @param bool        $keepLocalSession              When false will destroy the local session, otherwise will keep it
      * @param string|null $requestId                     The ID of the LogoutRequest sent by this SP to the IdP
      * @param bool        $retrieveParametersFromServer
