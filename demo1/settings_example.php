@@ -2,25 +2,25 @@
 
     $spBaseUrl = 'https://<your_domain>'; //or http://<your_domain>
 
-    $settingsInfo = [
-        'sp' => [
+    $settingsInfo = array (
+        'sp' => array (
             'entityId' => $spBaseUrl.'/demo1/metadata.php',
-            'assertionConsumerService' => [
+            'assertionConsumerService' => array (
                 'url' => $spBaseUrl.'/demo1/index.php?acs',
-            ],
-            'singleLogoutService' => [
+            ),
+            'singleLogoutService' => array (
                 'url' => $spBaseUrl.'/demo1/index.php?sls',
-            ],
+            ),
             'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-        ],
-        'idp' => [
+        ),
+        'idp' => array (
             'entityId' => '',
-            'singleSignOnService' => [
+            'singleSignOnService' => array (
                 'url' => '',
-            ],
-            'singleLogoutService' => [
+            ),
+            'singleLogoutService' => array (
                 'url' => '',
-            ],
+            ),
             'x509cert' => '',
-        ],
-    ];
+        ),
+    );

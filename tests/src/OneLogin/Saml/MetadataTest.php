@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Unit tests for Metadata class.
+ * Unit tests for Metadata class
  */
 class OneLogin_Saml_MetadataTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Tests the OneLogin_Saml_Metadata Constructor and the getXml method.
-     * Prepare the object to generate SAML Metadata (initialize settings)
-     * and then generate the Metadata with the getXML method.
-     *
-     * @covers \OneLogin_Saml_Metadata
-     * @covers \OneLogin_Saml_Metadata::getXml
-     */
+    * Tests the OneLogin_Saml_Metadata Constructor and the getXml method. 
+    * Prepare the object to generate SAML Metadata (initialize settings)
+    * and then generate the Metadata with the getXML method.
+    *
+    * @covers OneLogin_Saml_Metadata
+    * @covers OneLogin_Saml_Metadata::getXml
+    */
     public function testMetadata()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $metadata = new OneLogin_Saml_Metadata($settingsInfo);
@@ -40,20 +40,20 @@ class OneLogin_Saml_MetadataTest extends PHPUnit_Framework_TestCase
         $spSSODescriptor = $sspSSONodes->item(0);
 
         $this->assertTrue($spSSODescriptor->hasAttribute('AuthnRequestsSigned'));
-        $this->assertEquals('false', $spSSODescriptor->getAttribute('AuthnRequestsSigned'));
+        $this->assertEquals("false", $spSSODescriptor->getAttribute('AuthnRequestsSigned'));
         $this->assertTrue($spSSODescriptor->hasAttribute('WantAssertionsSigned'));
-        $this->assertEquals('false', $spSSODescriptor->getAttribute('WantAssertionsSigned'));
+        $this->assertEquals("false", $spSSODescriptor->getAttribute('WantAssertionsSigned'));
         $this->assertTrue($spSSODescriptor->hasAttribute('protocolSupportEnumeration'));
-        $this->assertEquals('urn:oasis:names:tc:SAML:2.0:protocol', $spSSODescriptor->getAttribute('protocolSupportEnumeration'));
+        $this->assertEquals("urn:oasis:names:tc:SAML:2.0:protocol", $spSSODescriptor->getAttribute('protocolSupportEnumeration'));
 
         $nameIdNodes = $entityDescriptor->getElementsByTagName('NameIDFormat');
         $this->assertEquals(1, $nameIdNodes->length);
         $nameID = $nameIdNodes->item(0);
-
+        
         $nameIdNodes = $entityDescriptor->getElementsByTagName('NameIDFormat');
         $this->assertEquals(1, $nameIdNodes->length);
         $nameID = $nameIdNodes->item(0);
-        $this->assertEquals('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified', $nameID->nodeValue);
+        $this->assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", $nameID->nodeValue);
 
         $assertionConsumerServiceNodes = $entityDescriptor->getElementsByTagName('AssertionConsumerService');
         $this->assertEquals(1, $assertionConsumerServiceNodes->length);
@@ -75,25 +75,25 @@ class OneLogin_Saml_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the protected method _getMetadataValidTimestamp of the OneLogin_Saml_Metadata.
-     *
-     * @covers \OneLogin_Saml_Metadata::_getMetadataValidTimestamp
-     */
+    * Tests the protected method _getMetadataValidTimestamp of the OneLogin_Saml_Metadata
+    *
+    * @covers OneLogin_Saml_Metadata::_getMetadataValidTimestamp
+    */
     public function testGetMetadataValidTimestamp()
     {
         if (class_exists('ReflectionClass')) {
-            $reflectionClass = new ReflectionClass('OneLogin_Saml_Metadata');
+            $reflectionClass = new ReflectionClass("OneLogin_Saml_Metadata");
             $method = $reflectionClass->getMethod('_getMetadataValidTimestamp');
 
             if (method_exists($method, 'setAccessible')) {
                 $method->setAccessible(true);
 
-                $settingsDir = TEST_ROOT.'/settings/';
+                $settingsDir = TEST_ROOT .'/settings/';
                 include $settingsDir.'settings1.php';
 
                 $metadata = new OneLogin_Saml_Metadata($settingsInfo);
 
-                $time = time() + OneLogin_Saml_Metadata::VALIDITY_SECONDS;
+                $time = time()+ OneLogin_Saml_Metadata::VALIDITY_SECONDS;
                 $validTimestamp = $method->invoke($metadata);
                 $this->assertEquals(strtotime($validTimestamp), $time);
             }

@@ -5,6 +5,7 @@
  * Your IdP will usually want your metadata, you can use this code to generate it once,
  * or expose it on a URL so your IdP can check it periodically.
  */
+
 $settings = null;
 require 'settings.php';
 

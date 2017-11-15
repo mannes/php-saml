@@ -1,18 +1,20 @@
 <?php
 
-$advancedSettings = [
-    // Compression settings
+$advancedSettings = array (
+
+    // Compression settings 
     // Handle if the getRequest/getResponse methods will return the Request/Response deflated.
     // But if we provide a $deflate boolean parameter to the getRequest or getResponse
     // method it will have priority over the compression settings.
-    'compress' => [
+    'compress' => array (
         'requests' => true,
-        'responses' => true,
-    ],
+        'responses' => true
+    ),
 
     // Security settings
-    'security' => [
-        /* signatures and encryptions offered */
+    'security' => array (
+
+        /** signatures and encryptions offered */
 
         // Indicates that the nameID of the <samlp:logoutRequest> sent by this SP
         // will be encrypted.
@@ -38,7 +40,8 @@ $advancedSettings = [
         */
         'signMetadata' => false,
 
-        /* signatures and encryptions required **/
+
+        /** signatures and encryptions required **/
 
         // Indicates a requirement for the <samlp:Response>, <samlp:LogoutRequest> and
         // <samlp:LogoutResponse> elements received by this SP to be signed.
@@ -84,41 +87,44 @@ $advancedSettings = [
         //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
         //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384'
         //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512'
-        'signatureAlgorithm' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
+        // Notice that sha1 is a deprecated algorithm and should not be used
+        'signatureAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
 
         // Algorithm that the toolkit will use on digest process. Options:
         //    'http://www.w3.org/2000/09/xmldsig#sha1'
         //    'http://www.w3.org/2001/04/xmlenc#sha256'
         //    'http://www.w3.org/2001/04/xmldsig-more#sha384'
         //    'http://www.w3.org/2001/04/xmlenc#sha512'
-        'digestAlgorithm' => 'http://www.w3.org/2000/09/xmldsig#sha1',
+        // Notice that sha1 is a deprecated algorithm and should not be used
+        'digestAlgorithm' => 'http://www.w3.org/2001/04/xmlenc#sha256',
 
         // ADFS URL-Encodes SAML data as lowercase, and the toolkit by default uses
         // uppercase. Turn it True for ADFS compatibility on signature verification
         'lowercaseUrlencoding' => false,
-    ],
+    ),
 
     // Contact information template, it is recommended to suply a technical and support contacts
-    'contactPerson' => [
-        'technical' => [
+    'contactPerson' => array (
+        'technical' => array (
             'givenName' => '',
-            'emailAddress' => '',
-        ],
-        'support' => [
+            'emailAddress' => ''
+        ),
+        'support' => array (
             'givenName' => '',
-            'emailAddress' => '',
-        ],
-    ],
+            'emailAddress' => ''
+        ),
+    ),
 
     // Organization information template, the info in en_US lang is recomended, add more if required
-    'organization' => [
-        'en-US' => [
+    'organization' => array (
+        'en-US' => array(
             'name' => '',
             'displayname' => '',
-            'url' => '',
-        ],
-    ],
-];
+            'url' => ''
+        ),
+    ),
+);
+
 
 /* Interoperable SAML 2.0 Web Browser SSO Profile [saml2int]   http://saml2int.org/profile/current
 

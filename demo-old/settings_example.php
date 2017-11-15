@@ -26,7 +26,9 @@
  *
  *  - requestedNameIdFormat
  *    The format how must be returned the nameID
+ *
  */
+
 require_once '../_toolkit_loader.php';
 require_once '../compatibility.php';
 

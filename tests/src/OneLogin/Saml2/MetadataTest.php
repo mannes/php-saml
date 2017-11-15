@@ -1,18 +1,19 @@
 <?php
 
 /**
- * Unit tests for Metadata class.
+ * Unit tests for Metadata class
  */
 class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
 {
+
     /**
-     * Tests the builder method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::builder
-     */
+    * Tests the builder method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::builder
+    */
     public function testBuilder()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -57,13 +58,13 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the builder method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::builder
-     */
+    * Tests the builder method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::builder
+    */
     public function testBuilderWithAttributeConsumingService()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings3.php';
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
         $spData = $settings->getSPData();
@@ -83,13 +84,13 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the builder method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::builder
-     */
+    * Tests the builder method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::builder
+    */
     public function testBuilderWithAttributeConsumingServiceWithMultipleAttributeValue()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings4.php';
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
         $spData = $settings->getSPData();
@@ -110,13 +111,13 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the signMetadata method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::signMetadata
-     */
+    * Tests the signMetadata method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::signMetadata
+    */
     public function testSignMetadata()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -159,13 +160,13 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the signMetadata method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::signMetadata
-     */
+    * Tests the signMetadata method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::signMetadata
+    */
     public function testSignMetadataDefaultAlgorithms()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -185,13 +186,13 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the signMetadata method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::signMetadata
-     */
+    * Tests the signMetadata method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::signMetadata
+    */
     public function testSignMetadataCustomAlgorithms()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -211,13 +212,13 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the addX509KeyDescriptors method of the OneLogin_Saml2_Metadata.
-     *
-     * @covers \OneLogin_Saml2_Metadata::addX509KeyDescriptors
-     */
+    * Tests the addX509KeyDescriptors method of the OneLogin_Saml2_Metadata
+    *
+    * @covers OneLogin_Saml2_Metadata::addX509KeyDescriptors
+    */
     public function testAddX509KeyDescriptors()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -254,7 +255,7 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
         }
 
         libxml_use_internal_errors(true);
-        $unparsedMetadata = file_get_contents(TEST_ROOT.'/data/metadata/unparsed_metadata.xml');
+        $unparsedMetadata = file_get_contents(TEST_ROOT . '/data/metadata/unparsed_metadata.xml');
         try {
             $metadataWithDescriptors = OneLogin_Saml2_Metadata::addX509KeyDescriptors($unparsedMetadata, $cert);
             $this->fail('Exception was not raised');
@@ -264,14 +265,14 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the addX509KeyDescriptors method of the OneLogin_Saml2_Metadata
-     * Case: Execute 2 addX509KeyDescriptors calls.
-     *
-     * @covers \OneLogin_Saml2_Metadata::addX509KeyDescriptors
-     */
+    * Tests the addX509KeyDescriptors method of the OneLogin_Saml2_Metadata
+    * Case: Execute 2 addX509KeyDescriptors calls
+    *
+    * @covers OneLogin_Saml2_Metadata::addX509KeyDescriptors
+    */
     public function testAddX509KeyDescriptors2Times()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -287,17 +288,18 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
 
         $metadata = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert, false);
 
-        $this->assertEquals(1, substr_count($metadata, '<md:KeyDescriptor'));
+        $this->assertEquals(1, substr_count($metadata, "<md:KeyDescriptor"));
 
         $metadata = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata, $cert, false);
 
-        $this->assertEquals(2, substr_count($metadata, '<md:KeyDescriptor'));
+        $this->assertEquals(2, substr_count($metadata, "<md:KeyDescriptor"));
+
 
         $metadata2 = OneLogin_Saml2_Metadata::builder($spData);
 
         $metadata2 = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata2, $cert);
 
-        $this->assertEquals(2, substr_count($metadata2, '<md:KeyDescriptor'));
+        $this->assertEquals(2, substr_count($metadata2, "<md:KeyDescriptor"));
 
         $this->assertEquals(1, substr_count($metadata2, '<md:KeyDescriptor use="signing"'));
 
@@ -305,7 +307,7 @@ class OneLogin_Saml2_MetadataTest extends PHPUnit_Framework_TestCase
 
         $metadata2 = OneLogin_Saml2_Metadata::addX509KeyDescriptors($metadata2, $cert);
 
-        $this->assertEquals(4, substr_count($metadata2, '<md:KeyDescriptor'));
+        $this->assertEquals(4, substr_count($metadata2, "<md:KeyDescriptor"));
 
         $this->assertEquals(2, substr_count($metadata2, '<md:KeyDescriptor use="signing"'));
 

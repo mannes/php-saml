@@ -1,7 +1,8 @@
 <?php
 /**
- *  SP Single Logout Service Endpoint.
+ *  SP Single Logout Service Endpoint
  */
+
 session_start();
 
 require_once dirname(__DIR__).'/_toolkit_loader.php';

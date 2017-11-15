@@ -1,31 +1,31 @@
 <?php
 
 /**
- * Unit tests for AuthN Request.
+ * Unit tests for AuthN Request
  */
 class OneLogin_Saml_AuthRequestTest extends PHPUnit_Framework_TestCase
 {
     private $_settings;
 
     /**
-     * Initializes the Test Suite.
-     */
+    * Initializes the Test Suite
+    */
     public function setUp()
     {
-        $settings = new OneLogin_Saml_Settings();
+        $settings = new OneLogin_Saml_Settings;
         $settings->idpSingleSignOnUrl = 'http://stuff.com';
         $settings->spReturnUrl = 'http://sp.stuff.com';
         $this->_settings = $settings;
     }
 
     /**
-     * Tests the OneLogin_Saml_AuthRequest Constructor and
-     * the getRedirectUrl method
-     * The creation of a deflated SAML Request.
-     *
-     * @covers \OneLogin_Saml_AuthRequest
-     * @covers \OneLogin_Saml_AuthRequest::getRedirectUrl
-     */
+    * Tests the OneLogin_Saml_AuthRequest Constructor and
+    * the getRedirectUrl method
+    * The creation of a deflated SAML Request
+    *
+    * @covers OneLogin_Saml_AuthRequest
+    * @covers OneLogin_Saml_AuthRequest::getRedirectUrl
+    */
     public function testCreateDeflatedSAMLRequestURLParameter()
     {
         $request = new OneLogin_Saml_AuthRequest($this->_settings);
@@ -51,20 +51,20 @@ class OneLogin_Saml_AuthRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the protected method _getTimestamp of the OneLogin_Saml_AuthRequest.
-     *
-     * @covers \OneLogin_Saml_AuthRequest::_getTimestamp
-     */
+    * Tests the protected method _getTimestamp of the OneLogin_Saml_AuthRequest
+    *
+    * @covers OneLogin_Saml_AuthRequest::_getTimestamp
+    */
     public function testGetMetadataValidTimestamp()
     {
         if (class_exists('ReflectionClass')) {
-            $reflectionClass = new ReflectionClass('OneLogin_Saml_AuthRequest');
+            $reflectionClass = new ReflectionClass("OneLogin_Saml_AuthRequest");
             $method = $reflectionClass->getMethod('_getTimestamp');
-
+ 
             if (method_exists($method, 'setAccessible')) {
                 $method->setAccessible(true);
 
-                $settingsDir = TEST_ROOT.'/settings/';
+                $settingsDir = TEST_ROOT .'/settings/';
                 include $settingsDir.'settings1.php';
 
                 $metadata = new OneLogin_Saml_AuthRequest($settingsInfo);
@@ -77,20 +77,20 @@ class OneLogin_Saml_AuthRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the protected method _generateUniqueID of the OneLogin_Saml_AuthRequest.
-     *
-     * @covers \OneLogin_Saml_AuthRequest::_generateUniqueID
-     */
+    * Tests the protected method _generateUniqueID of the OneLogin_Saml_AuthRequest
+    *
+    * @covers OneLogin_Saml_AuthRequest::_generateUniqueID
+    */
     public function testGenerateUniqueID()
     {
         if (class_exists('ReflectionClass')) {
-            $reflectionClass = new ReflectionClass('OneLogin_Saml_AuthRequest');
+            $reflectionClass = new ReflectionClass("OneLogin_Saml_AuthRequest");
             $method = $reflectionClass->getMethod('_generateUniqueID');
 
             if (method_exists($method, 'setAccessible')) {
                 $method->setAccessible(true);
 
-                $settingsDir = TEST_ROOT.'/settings/';
+                $settingsDir = TEST_ROOT .'/settings/';
                 include $settingsDir.'settings1.php';
 
                 $metadata = new OneLogin_Saml_AuthRequest($settingsInfo);

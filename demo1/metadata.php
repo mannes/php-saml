@@ -1,15 +1,16 @@
 <?php
-
+ 
 /**
- *  SAML Metadata view.
+ *  SAML Metadata view
  */
+
 require_once dirname(__DIR__).'/_toolkit_loader.php';
 
-require_once 'settings.php';
+require_once 'settings.php' ;
 
 try {
-    //$auth = new OneLogin_Saml2_Auth($settingsInfo);
-    //$settings = $auth->getSettings();
+    #$auth = new OneLogin_Saml2_Auth($settingsInfo);
+    #$settings = $auth->getSettings();
     // Now we only validate SP settings
     $settings = new OneLogin_Saml2_Settings($settingsInfo, true);
     $metadata = $settings->getSPMetadata();

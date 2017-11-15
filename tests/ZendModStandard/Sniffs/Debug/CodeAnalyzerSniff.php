@@ -5,13 +5,12 @@
  * PHP version 5
  *
  * @category  PHP
- *
+ * @package   PHP_CodeSniffer
  * @author    Holger Kral <holger.kral@zend.com>
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2012 Squiz Pty Ltd (ABN 77 084 670 600)
  * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
- *
- * @see      http://pear.php.net/package/PHP_CodeSniffer
+ * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 
 /**
@@ -20,18 +19,18 @@
  * Runs the Zend Code Analyzer (from Zend Studio) on the file.
  *
  * @category  PHP
- *
+ * @package   PHP_CodeSniffer
  * @author    Holger Kral <holger.kral@zend.com>
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2012 Squiz Pty Ltd (ABN 77 084 670 600)
  * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
- *
  * @version   Release: 1.5.2
- *
- * @see      http://pear.php.net/package/PHP_CodeSniffer
+ * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
 class ZendModStandard_Sniffs_Debug_CodeAnalyzerSniff implements PHP_CodeSniffer_Sniff
 {
+
+
     /**
      * Returns the token types that this sniff is interested in.
      *
@@ -39,31 +38,33 @@ class ZendModStandard_Sniffs_Debug_CodeAnalyzerSniff implements PHP_CodeSniffer_
      */
     public function register()
     {
-        return [T_OPEN_TAG];
-    }
+        return array(T_OPEN_TAG);
 
-    //end register()
+    }//end register()
+
 
     /**
      * Processes the tokens that this sniff is interested in.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile the file where the token was found
-     * @param int                  $stackPtr  the position in the stack where
-     *                                        the token was found
+     * @param PHP_CodeSniffer_File $phpcsFile The file where the token was found.
+     * @param int                  $stackPtr  The position in the stack where
+     *                                        the token was found.
+     *
+     * @return void
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
         // Because we are analyzing the whole file in one step, execute this method
         // only on first occurrence of a T_OPEN_TAG.
         $prevOpenTag = $phpcsFile->findPrevious(T_OPEN_TAG, ($stackPtr - 1));
-        if (false !== $prevOpenTag) {
+        if ($prevOpenTag !== false) {
             return;
         }
 
         $fileName = $phpcsFile->getFilename();
 
         $analyzerPath = PHP_CodeSniffer::getConfigData('zend_ca_path');
-        if (true === is_null($analyzerPath)) {
+        if (is_null($analyzerPath) === true) {
             return;
         }
 
@@ -81,15 +82,15 @@ class ZendModStandard_Sniffs_Debug_CodeAnalyzerSniff implements PHP_CodeSniffer_
         // $exitCode is the last line of $output if no error occures, on error it
         // is numeric. Try to handle various error conditions and provide useful
         // error reporting.
-        if (true === is_numeric($exitCode) && $exitCode > 0) {
-            if (true === is_array($output)) {
+        if (is_numeric($exitCode) === true && $exitCode > 0) {
+            if (is_array($output) === true) {
                 $msg = join('\n', $output);
             }
 
             throw new PHP_CodeSniffer_Exception("Failed invoking ZendCodeAnalyzer, exitcode was [$exitCode], retval was [$retval], output was [$msg]");
         }
 
-        if (true === is_array($output)) {
+        if (is_array($output) === true) {
             $tokens = $phpcsFile->getTokens();
 
             foreach ($output as $finding) {
@@ -99,7 +100,7 @@ class ZendModStandard_Sniffs_Debug_CodeAnalyzerSniff implements PHP_CodeSniffer_
                 // > Analyzing <filename>...
                 // So skip these...
                 $res = preg_match("/^.+\(line ([0-9]+)\):(.+)$/", $finding, $regs);
-                if (true === empty($regs) || false === $res) {
+                if (empty($regs) === true || $res === false) {
                     continue;
                 }
 
@@ -112,12 +113,13 @@ class ZendModStandard_Sniffs_Debug_CodeAnalyzerSniff implements PHP_CodeSniffer_
                     }
                 }
 
-                if (null !== $lineToken) {
+                if ($lineToken !== null) {
                     $phpcsFile->addWarning(trim($regs[2]), $ptr, 'ExternalTool');
                 }
             }//end foreach
         }//end if
-    }
 
-    //end process()
+    }//end process()
+
 }//end class
+?>

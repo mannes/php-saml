@@ -1,7 +1,7 @@
 <?php
 
-    $advancedSettings = [
-        'security' => [
+    $advancedSettings = array (
+        'security' => array (
             'nameIdEncrypted' => false,
             'authnRequestsSigned' => false,
             'logoutRequestSigned' => false,
@@ -10,5 +10,5 @@
             'wantMessagesSigned' => false,
             'wantAssertionsSigned' => false,
             'wantNameIdEncrypted' => false,
-        ],
-    ];
+        ),
+    );    

@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Unit tests for Logout Request.
+ * Unit tests for Logout Request
  */
 class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 {
     private $_settings;
 
     /**
-     * Initializes the Test Suite.
-     */
+    * Initializes the Test Suite
+    */
     public function setUp()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -20,13 +20,13 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
     public function testConstructor()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settingsInfo['security']['nameIdEncrypted'] = true;
@@ -35,7 +35,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -48,22 +48,22 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
     public function testConstructorWithRequest()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
 
-        $encodedDeflatedRequest = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request_deflated.xml.base64');
+        $encodedDeflatedRequest = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_deflated.xml.base64');
 
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, $encodedDeflatedRequest);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -75,13 +75,13 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
     public function testConstructorWithSessionIndex()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $sessionIndex = '_51be37965feb5579d803141076936dc2e9d1d98ebf';
@@ -89,7 +89,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, null, null, $sessionIndex);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -101,17 +101,17 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
         $sessionIndexes = OneLogin_Saml2_LogoutRequest::getSessionIndexes($inflated);
         $this->assertInternalType('array', $sessionIndexes);
-        $this->assertEquals([$sessionIndex], $sessionIndexes);
+        $this->assertEquals(array($sessionIndex), $sessionIndexes);
     }
 
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
-    public function testConstructorWithNameIdFormat()
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
+    public function testConstructorWithNameIdFormatOnParameter()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $nameId = 'test@example.com';
@@ -120,7 +120,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, null, $nameId, null, $nameIdFormat);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -138,13 +138,81 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
+    public function testConstructorWithNameIdFormatOnSettings()
+    {
+        $settingsDir = TEST_ROOT .'/settings/';
+        include $settingsDir.'settings1.php';
+
+        $nameId = 'test@example.com';
+        $nameIdFormat = 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient';
+        $settingsInfo['sp']['NameIDFormat'] = $nameIdFormat;
+        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+
+        $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, null, $nameId, null, null);
+
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
+        $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
+        $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
+        parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
+        // parse_url already urldecode de params so is not required.
+        $payload = $exploded['SAMLRequest'];
+        $decoded = base64_decode($payload);
+        $inflated = gzinflate($decoded);
+        $this->assertRegExp('#^<samlp:LogoutRequest#', $inflated);
+
+        $logoutNameId = OneLogin_Saml2_LogoutRequest::getNameId($inflated);
+        $this->assertEquals($nameId, $logoutNameId);
+
+        $logoutNameIdData = OneLogin_Saml2_LogoutRequest::getNameIdData($inflated);
+        $this->assertEquals($nameIdFormat, $logoutNameIdData['Format']);
+    }
+
+    /**
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
+    public function testConstructorWithoutNameIdFormat()
+    {
+        $settingsDir = TEST_ROOT .'/settings/';
+        include $settingsDir.'settings1.php';
+
+        $nameId = 'test@example.com';
+        $nameIdFormat = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified';
+        $settingsInfo['sp']['NameIDFormat'] = $nameIdFormat;
+        $settings = new OneLogin_Saml2_Settings($settingsInfo);
+
+        $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, null, $nameId, null, null);
+
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
+        $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
+        $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
+        parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
+        // parse_url already urldecode de params so is not required.
+        $payload = $exploded['SAMLRequest'];
+        $decoded = base64_decode($payload);
+        $inflated = gzinflate($decoded);
+        $this->assertRegExp('#^<samlp:LogoutRequest#', $inflated);
+
+        $logoutNameId = OneLogin_Saml2_LogoutRequest::getNameId($inflated);
+        $this->assertEquals($nameId, $logoutNameId);
+
+        $logoutNameIdData = OneLogin_Saml2_LogoutRequest::getNameIdData($inflated);
+        $this->assertFalse(isset($logoutNameIdData['Format']));
+    }
+
+    /**
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
     public function testConstructorWithNameIdNameQualifier()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $nameId = 'test@example.com';
@@ -154,7 +222,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, null, $nameId, null, $nameIdFormat, $nameIdNameQualifier);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -172,17 +240,18 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($nameIdNameQualifier, $logoutNameIdData['NameQualifier']);
     }
 
+
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     * The creation of a deflated SAML Logout Request.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    * The creation of a deflated SAML Logout Request
+    *
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
     public function testCreateDeflatedSAMLLogoutRequestURLParameter()
     {
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -194,14 +263,14 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the OneLogin_Saml2_LogoutRequest Constructor.
-     * Case: Able to generate encryptedID with MultiCert.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest
-     */
+    * Tests the OneLogin_Saml2_LogoutRequest Constructor.
+    * Case: Able to generate encryptedID with MultiCert
+    * 
+    * @covers OneLogin_Saml2_LogoutRequest
+    */
     public function testConstructorEncryptIdUsingX509certMulti()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings6.php';
 
         $settingsInfo['security']['nameIdEncrypted'] = true;
@@ -210,7 +279,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings);
 
-        $parameters = ['SAMLRequest' => $logoutRequest->getRequest()];
+        $parameters = array('SAMLRequest' => $logoutRequest->getRequest());
         $logoutUrl = OneLogin_Saml2_Utils::redirect('http://idp.example.com/SingleLogoutService.php', $parameters, true);
         $this->assertRegExp('#^http://idp\.example\.com\/SingleLogoutService\.php\?SAMLRequest=#', $logoutUrl);
         parse_str(parse_url($logoutUrl, PHP_URL_QUERY), $exploded);
@@ -223,30 +292,30 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the getID method of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getID
-     */
+    * Tests the getID method of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getID
+    */
     public function testGetIDFromSAMLLogoutRequest()
     {
-        $logoutRequest = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $logoutRequest = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
         $id = OneLogin_Saml2_LogoutRequest::getID($logoutRequest);
         $this->assertEquals('ONELOGIN_21584ccdfaca36a145ae990442dcd96bfe60151e', $id);
 
-        $dom = new DOMDocument();
+        $dom = new DOMDocument;
         $dom->loadXML($logoutRequest);
         $id2 = OneLogin_Saml2_LogoutRequest::getID($dom);
         $this->assertEquals('ONELOGIN_21584ccdfaca36a145ae990442dcd96bfe60151e', $id2);
     }
 
     /**
-     * Tests the getID method of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getID
-     */
+    * Tests the getID method of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getID
+    */
     public function testGetIDFromDeflatedSAMLLogoutRequest()
     {
-        $deflatedLogoutRequest = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request_deflated.xml.base64');
+        $deflatedLogoutRequest = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_deflated.xml.base64');
         $decoded = base64_decode($deflatedLogoutRequest);
         $logoutRequest = gzinflate($decoded);
         $id = OneLogin_Saml2_LogoutRequest::getID($logoutRequest);
@@ -254,19 +323,19 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the getNameIdData method of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getNameIdData
-     */
+    * Tests the getNameIdData method of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getNameIdData
+    */
     public function testGetNameIdData()
     {
-        $expectedNameIdData = [
+        $expectedNameIdData = array (
             'Value' => 'ONELOGIN_1e442c129e1f822c8096086a1103c5ee2c7cae1c',
             'Format' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-            'SPNameQualifier' => 'http://idp.example.com/',
-        ];
+            'SPNameQualifier' => 'http://idp.example.com/'
+        );
 
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $nameIdData = OneLogin_Saml2_LogoutRequest::getNameIdData($request);
 
@@ -277,7 +346,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $nameIdData2 = OneLogin_Saml2_LogoutRequest::getNameIdData($dom);
         $this->assertEquals($expectedNameIdData, $nameIdData2);
 
-        $request2 = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request_encrypted_nameid.xml');
+        $request2 = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_encrypted_nameid.xml');
 
         try {
             $nameIdData3 = OneLogin_Saml2_LogoutRequest::getNameIdData($request2);
@@ -289,36 +358,37 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $key = $this->_settings->getSPkey();
         $nameIdData4 = OneLogin_Saml2_LogoutRequest::getNameIdData($request2, $key);
 
-        $expectedNameIdData = [
+        $expectedNameIdData = array (
             'Value' => 'ONELOGIN_9c86c4542ab9d6fce07f2f7fd335287b9b3cdf69',
             'Format' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress',
-            'SPNameQualifier' => 'https://pitbulk.no-ip.org/newonelogin/demo1/metadata.php',
-        ];
+            'SPNameQualifier' => 'https://pitbulk.no-ip.org/newonelogin/demo1/metadata.php'
+        );
 
         $this->assertEquals($expectedNameIdData, $nameIdData4);
 
-        $invRequest = file_get_contents(TEST_ROOT.'/data/logout_requests/invalids/no_nameId.xml');
+        $invRequest = file_get_contents(TEST_ROOT . '/data/logout_requests/invalids/no_nameId.xml');
         try {
             $nameIdData3 = OneLogin_Saml2_LogoutRequest::getNameIdData($invRequest);
             $this->fail('OneLogin_Saml2_ValidationError was not raised');
         } catch (OneLogin_Saml2_ValidationError $e) {
             $this->assertContains('NameID not found in the Logout Request', $e->getMessage());
         }
+
     }
 
     /**
-     * Tests the getNameIdmethod of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getNameId
-     */
+    * Tests the getNameIdmethod of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getNameId
+    */
     public function testGetNameId()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $nameId = OneLogin_Saml2_LogoutRequest::getNameId($request);
         $this->assertEquals('ONELOGIN_1e442c129e1f822c8096086a1103c5ee2c7cae1c', $nameId);
 
-        $request2 = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request_encrypted_nameid.xml');
+        $request2 = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_encrypted_nameid.xml');
         try {
             $nameId2 = OneLogin_Saml2_LogoutRequest::getNameId($request2);
             $this->fail('OneLogin_Saml2_Error was not raised');
@@ -331,13 +401,13 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the getIssuer of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getIssuer
-     */
+    * Tests the getIssuer of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getIssuer
+    */
     public function testGetIssuer()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $issuer = OneLogin_Saml2_LogoutRequest::getIssuer($request);
         $this->assertEquals('http://idp.example.com/', $issuer);
@@ -349,13 +419,13 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the getSessionIndexes of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getSessionIndexes
-     */
+    * Tests the getSessionIndexes of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getSessionIndexes
+    */
     public function testGetSessionIndexes()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $sessionIndexes = OneLogin_Saml2_LogoutRequest::getSessionIndexes($request);
         $this->assertEmpty($sessionIndexes);
@@ -365,19 +435,19 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $sessionIndexes = OneLogin_Saml2_LogoutRequest::getSessionIndexes($dom);
         $this->assertEmpty($sessionIndexes);
 
-        $request2 = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request_with_sessionindex.xml');
+        $request2 = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request_with_sessionindex.xml');
         $sessionIndexes2 = OneLogin_Saml2_LogoutRequest::getSessionIndexes($request2);
-        $this->assertEquals(['_ac72a76526cb6ca19f8438e73879a0e6c8ae5131'], $sessionIndexes2);
+        $this->assertEquals(array('_ac72a76526cb6ca19f8438e73879a0e6c8ae5131'), $sessionIndexes2);
     }
 
     /**
-     * Tests the getError method of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getError
-     */
+    * Tests the getError method of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getError
+    */
     public function testGetError()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $deflatedRequest = gzdeflate($request);
         $encodedRequest = base64_encode($deflatedRequest);
@@ -397,14 +467,14 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
-     * Case Invalid Issuer.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    * Case Invalid Issuer
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsInvalidIssuer()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/invalids/invalid_issuer.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/invalids/invalid_issuer.xml');
         $currentURL = OneLogin_Saml2_Utils::getSelfURLNoQuery();
         $request = str_replace('http://stuff.com/endpoints/endpoints/sls.php', $currentURL, $request);
 
@@ -422,14 +492,14 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
-     * Case invalid xml.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    * Case invalid xml
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsInValidWrongXML()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settingsInfo['security']['wantXMLValidation'] = false;
@@ -437,7 +507,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
         $settings->setStrict(false);
 
-        $message = file_get_contents(TEST_ROOT.'/data/logout_requests/invalids/invalid_xml.xml.base64');
+        $message = file_get_contents(TEST_ROOT . '/data/logout_requests/invalids/invalid_xml.xml.base64');
         $response = new OneLogin_Saml2_LogoutRequest($settings, $message);
 
         $this->assertTrue($response->isValid());
@@ -460,14 +530,14 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
-     * Case Invalid Destination.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    * Case Invalid Destination
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsInvalidDestination()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $deflatedRequest = gzdeflate($request);
         $encodedRequest = base64_encode($deflatedRequest);
@@ -483,14 +553,14 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
-     * Case Invalid NotOnOrAfter.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    * Case Invalid NotOnOrAfter
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsInvalidNotOnOrAfter()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/invalids/not_after_failed.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/invalids/not_after_failed.xml');
         $currentURL = OneLogin_Saml2_Utils::getSelfURLNoQuery();
         $request = str_replace('http://stuff.com/endpoints/endpoints/sls.php', $currentURL, $request);
 
@@ -504,17 +574,17 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $logoutRequest2 = new OneLogin_Saml2_LogoutRequest($this->_settings, $encodedRequest);
 
         $this->assertFalse($logoutRequest2->isValid());
-        $this->assertEquals('Could not validate timestamp: expired. Check system clock.', $logoutRequest2->getError());
+        $this->assertEquals("Could not validate timestamp: expired. Check system clock.", $logoutRequest2->getError());
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsValid()
     {
-        $request = file_get_contents(TEST_ROOT.'/data/logout_requests/logout_request.xml');
+        $request = file_get_contents(TEST_ROOT . '/data/logout_requests/logout_request.xml');
 
         $deflatedRequest = gzdeflate($request);
         $encodedRequest = base64_encode($deflatedRequest);
@@ -539,15 +609,15 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests that a 'true' value for compress => requests gets honored when we
-     * try to obtain the request payload from getRequest().
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getRequest()
-     */
+    * Tests that a 'true' value for compress => requests gets honored when we
+    * try to obtain the request payload from getRequest()
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getRequest()
+    */
     public function testWeCanChooseToCompressARequest()
     {
         //Test that we can compress.
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -556,18 +626,19 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $decoded = base64_decode($payload);
         $decompressed = gzinflate($decoded);
         $this->assertRegExp('#^<samlp:LogoutRequest#', $decompressed);
+
     }
 
     /**
-     * Tests that a 'false' value for compress => requests gets honored when we
-     * try to obtain the request payload from getRequest().
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::getRequest()
-     */
+    * Tests that a 'false' value for compress => requests gets honored when we
+    * try to obtain the request payload from getRequest()
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::getRequest()
+    */
     public function testWeCanChooseNotToCompressARequest()
     {
         //Test that we can choose not to compress the request payload.
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings2.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -582,12 +653,12 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
      * method to choose whether it should 'gzdeflate' the body
      * of the request.
      *
-     * @covers \OneLogin_Saml2_LogoutRequest::getRequest()
+     * @covers OneLogin_Saml2_LogoutRequest::getRequest()
      */
     public function testWeCanChooseToDeflateARequestBody()
     {
         //Test that we can choose not to compress the request payload.
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         //Compression is currently turned on in settings.
@@ -598,7 +669,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $this->assertRegExp('#^<samlp:LogoutRequest#', $decoded);
 
         //Test that we can choose not to compress the request payload.
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings2.php';
 
         //Compression is currently turned off in settings.
@@ -611,21 +682,21 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsInValidSign()
     {
         $currentURL = OneLogin_Saml2_Utils::getSelfURLNoQuery();
 
         $this->_settings->setStrict(false);
-        $_GET = [
+        $_GET = array (
             'SAMLRequest' => 'lVLBitswEP0Vo7tjeWzJtki8LIRCYLvbNksPewmyPc6K2pJqyXQ/v1LSQlroQi/DMJr33rwZbZ2cJysezNms/gt+X9H55G2etBOXlx1ZFy2MdMoJLWd0wvfieP/xQcCGCrsYb3ozkRvI+wjpHC5eGU2Sw35HTg3lA8hqZFwWFcMKsStpxbEsxoLXeQN9OdY1VAgk+YqLC8gdCUQB7tyKB+281D6UaF6mtEiBPudcABcMXkiyD26Ulv6CevXeOpFlVvlunb5ttEmV3ZjlnGn8YTRO5qx0NuBs8kzpAd829tXeucmR5NH4J/203I8el6gFRUqbFPJnyEV51Wq30by4TLW0/9ZyarYTxt4sBsjUYLMZvRykl1Fxm90SXVkfwx4P++T4KSafVzmpUcVJ/sfSrQZJPphllv79W8WKGtLx0ir8IrVTqD1pT2MH3QAMSs4KTvui71jeFFiwirOmprwPkYW063+5uRq4urHiiC4e8hCX3J5wqAEGaPpw9XB5JmkBdeDqSlkz6CmUXdl0Qae5kv2F/1384wu3PwE=',
             'RelayState' => '_1037fbc88ec82ce8e770b2bed1119747bb812a07e6',
             'SigAlg' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
-            'Signature' => 'XCwCyI5cs7WhiJlB5ktSlWxSBxv+6q2xT3c8L7dLV6NQG9LHWhN7gf8qNsahSXfCzA0Ey9dp5BQ0EdRvAk2DIzKmJY6e3hvAIEp1zglHNjzkgcQmZCcrkK9Czi2Y1WkjOwR/WgUTUWsGJAVqVvlRZuS3zk3nxMrLH6f7toyvuJc=',
-        ];
+            'Signature' => 'XCwCyI5cs7WhiJlB5ktSlWxSBxv+6q2xT3c8L7dLV6NQG9LHWhN7gf8qNsahSXfCzA0Ey9dp5BQ0EdRvAk2DIzKmJY6e3hvAIEp1zglHNjzkgcQmZCcrkK9Czi2Y1WkjOwR/WgUTUWsGJAVqVvlRZuS3zk3nxMrLH6f7toyvuJc='
+        );
 
         $request = gzinflate(base64_decode($_GET['SAMLRequest']));
         $encodedRequest = $_GET['SAMLRequest'];
@@ -680,12 +751,13 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($logoutRequest5->isValid());
         $this->assertEquals('Signature validation failed. Logout Request rejected', $logoutRequest5->getError());
 
+
         $_GET['SigAlg'] = 'http://www.w3.org/2000/09/xmldsig#dsa-sha1';
 
         $this->assertFalse($logoutRequest5->isValid());
         $this->assertEquals('Invalid signAlg in the recieved Logout Request', $logoutRequest5->getError());
 
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
         $settingsInfo['strict'] = true;
         $settingsInfo['security']['wantMessagesSigned'] = true;
@@ -712,28 +784,28 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
-     * Case: Using x509certMulti.
-     *
-     * @covers \OneLogin_Saml2_LogoutRequest::isValid
-     */
+    * Tests the isValid method of the OneLogin_Saml2_LogoutRequest
+    * Case: Using x509certMulti
+    *
+    * @covers OneLogin_Saml2_LogoutRequest::isValid
+    */
     public function testIsValidSignUsingX509certMulti()
     {
-        $_GET = [
+        $_GET = array (
             'SAMLRequest' => 'fZJNa+MwEIb/itHdiTz6sC0SQyEsBPoB27KHXoIsj7cGW3IlGfLzV7G7kN1DL2KYmeedmRcdgp7GWT26326JP/FzwRCz6zTaoNbKkSzeKqfDEJTVEwYVjXp9eHpUsKNq9i4640Zyh3xP6BDQx8FZkp1PR3KpqexAl72QmpUCS8SW01IiZz2TVVGD4X1VQYlAsl/oQyKPJAklPIQFzzZEbWNK0YLnlOVA3wqpQCoB7yQ7pWsGq+NKfcQ4q/0+xKXvd8ZNe7Td7AYbw10UxrCbP2aSPbv4Yl/8Qx/R3+SB5bTOoXiDQvFNvjnc7lXrIr75kh+6eYdXPc0jrkMO+/umjXhOtpxP2Q/nJx2/9+uWGbq8X1tV9NqGAW0kzaVvoe1AAJeCSWqYaUVRM2SilKKuqDTpFSlszdcK29RthVm9YriZebYdXpsLdhVAB7VJzif3haYMqqTVcl0JMBR4y+s2zak3sf/4v8l/vlHzBw==',
             'RelayState' => '_1037fbc88ec82ce8e770b2bed1119747bb812a07e6',
             'SigAlg' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
-            'Signature' => 'Ouxo9BV6zmq4yrgamT9EbSKy/UmvSxGS8z26lIMgKOEP4LFR/N23RftdANmo4HafrzSfA0YTXwhKDqbOByS0j+Ql8OdQOes7vGioSjo5qq/Bi+5i6jXwQfphnfcHAQiJL4gYVIifkhhHRWpvYeiysF1Y9J02me0izwazFmoRXr4=',
-        ];
+            'Signature' => 'Ouxo9BV6zmq4yrgamT9EbSKy/UmvSxGS8z26lIMgKOEP4LFR/N23RftdANmo4HafrzSfA0YTXwhKDqbOByS0j+Ql8OdQOes7vGioSjo5qq/Bi+5i6jXwQfphnfcHAQiJL4gYVIifkhhHRWpvYeiysF1Y9J02me0izwazFmoRXr4='
+        );
 
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings6.php';
         $settingsInfo['strict'] = true;
         $settingsInfo['security']['wantMessagesSigned'] = true;
         $encodedRequest = $_GET['SAMLRequest'];
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
-        $settings->setBaseURL('http://stuff.com/endpoints/endpoints/');
-        $_SERVER['REQUEST_URI'] = '/endpoints/endpoints/sls.php';
+        $settings->setBaseURL("http://stuff.com/endpoints/endpoints/");
+        $_SERVER['REQUEST_URI'] = "/endpoints/endpoints/sls.php";
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings, $encodedRequest);
         $valid = $logoutRequest->isValid();
         unset($_SERVER['REQUEST_URI']);
@@ -743,33 +815,33 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
 
     /**
      * Tests that we can get the request XML directly without
-     * going through intermediate steps.
+     * going through intermediate steps
      *
-     * @covers \OneLogin_Saml2_LogoutRequest::getXML()
+     * @covers OneLogin_Saml2_LogoutRequest::getXML()
      */
     public function testGetXML()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
         $logoutRequest = new OneLogin_Saml2_LogoutRequest($settings);
         $xml = $logoutRequest->getXML();
         $this->assertRegExp('#^<samlp:LogoutRequest#', $xml);
-
+    
         $logoutRequestProcessed = new OneLogin_Saml2_LogoutRequest($settings, base64_encode($xml));
         $xml2 = $logoutRequestProcessed->getXML();
         $this->assertRegExp('#^<samlp:LogoutRequest#', $xml2);
     }
 
     /**
-     * Tests that we can get the ID of the LogoutRequest.
+     * Tests that we can get the ID of the LogoutRequest
      *
-     * @covers \OneLogin_Saml2_LogoutRequest::getID()
+     * @covers OneLogin_Saml2_LogoutRequest::getID()
      */
     public function testGetID()
     {
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $settings = new OneLogin_Saml2_Settings($settingsInfo);
@@ -777,7 +849,7 @@ class OneLogin_Saml2_LogoutRequestTest extends PHPUnit_Framework_TestCase
         $xml = $logoutRequest->getXML();
         $id1 = OneLogin_Saml2_LogoutRequest::getID($xml);
         $this->assertNotNull($id1);
-
+    
         $logoutRequestProcessed = new OneLogin_Saml2_LogoutRequest($settings, base64_encode($xml));
         $id2 = $logoutRequestProcessed->id;
         $this->assertEquals($id1, $id2);

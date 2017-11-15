@@ -1,15 +1,17 @@
 <?php
 
 /**
- * Metadata lib of OneLogin PHP Toolkit.
+ * Metadata lib of OneLogin PHP Toolkit
+ *
  */
+
 class OneLogin_Saml2_Metadata
 {
     const TIME_VALID = 172800;  // 2 days
     const TIME_CACHED = 604800; // 1 week
 
     /**
-     * Generates the metadata of the SP based on the settings.
+     * Generates the metadata of the SP based on the settings
      *
      * @param array         $sp            The SP data
      * @param bool|string   $authnsign     authnRequestsSigned attribute
@@ -19,15 +21,15 @@ class OneLogin_Saml2_Metadata
      * @param array         $contacts      Contacts info
      * @param array         $organization  Organization ingo
      * @param array         $attributes
-     *
      * @return string SAML Metadata XML
      */
-    public static function builder($sp, $authnsign = false, $wsign = false, $validUntil = null, $cacheDuration = null, $contacts = [], $organization = [], $attributes = [])
+    public static function builder($sp, $authnsign = false, $wsign = false, $validUntil = null, $cacheDuration = null, $contacts = array(), $organization = array(), $attributes = array())
     {
+
         if (!isset($validUntil)) {
-            $validUntil = time() + self::TIME_VALID;
+            $validUntil =  time() + self::TIME_VALID;
         }
-        $validUntilTime = gmdate('Y-m-d\TH:i:s\Z', $validUntil);
+        $validUntilTime =  gmdate('Y-m-d\TH:i:s\Z', $validUntil);
 
         if (!isset($cacheDuration)) {
             $cacheDuration = self::TIME_CACHED;
@@ -59,9 +61,9 @@ SLS_TEMPLATE;
         $strOrganization = '';
 
         if (!empty($organization)) {
-            $organizationInfoNames = [];
-            $organizationInfoDisplaynames = [];
-            $organizationInfoUrls = [];
+            $organizationInfoNames = array();
+            $organizationInfoDisplaynames = array();
+            $organizationInfoUrls = array();
             foreach ($organization as $lang => $info) {
                 $organizationInfoNames[] = <<<ORGANIZATION_NAME
        <md:OrganizationName xml:lang="{$lang}">{$info['name']}</md:OrganizationName>
@@ -84,7 +86,7 @@ ORGANIZATIONSTR;
 
         $strContacts = '';
         if (!empty($contacts)) {
-            $contactsInfo = [];
+            $contactsInfo = array();
             foreach ($contacts as $type => $info) {
                 $contactsInfo[] = <<<CONTACT
     <md:ContactPerson contactType="{$type}">
@@ -101,14 +103,14 @@ CONTACT;
             $attrCsDesc = '';
             if (isset($sp['attributeConsumingService']['serviceDescription'])) {
                 $attrCsDesc = sprintf(
-                    '            <md:ServiceDescription xml:lang="en">%s</md:ServiceDescription>'.PHP_EOL,
+                    '            <md:ServiceDescription xml:lang="en">%s</md:ServiceDescription>' . PHP_EOL,
                     $sp['attributeConsumingService']['serviceDescription']
                 );
             }
             if (!isset($sp['attributeConsumingService']['serviceName'])) {
                 $sp['attributeConsumingService']['serviceName'] = 'Service';
             }
-            $requestedAttributeData = [];
+            $requestedAttributeData = array();
             foreach ($sp['attributeConsumingService']['requestedAttributes'] as $attribute) {
                 $requestedAttributeStr = sprintf('            <md:RequestedAttribute Name="%s"', $attribute['name']);
                 if (isset($attribute['nameFormat'])) {
@@ -118,17 +120,17 @@ CONTACT;
                     $requestedAttributeStr .= sprintf(' FriendlyName="%s"', $attribute['friendlyName']);
                 }
                 if (isset($attribute['isRequired'])) {
-                    $requestedAttributeStr .= sprintf(' isRequired="%s"', true === $attribute['isRequired'] ? 'true' : 'false');
+                    $requestedAttributeStr .= sprintf(' isRequired="%s"', $attribute['isRequired'] === true ? 'true' : 'false');
                 }
-                $reqAttrAuxStr = ' />';
+                $reqAttrAuxStr = " />";
 
                 if (isset($attribute['attributeValue']) && !empty($attribute['attributeValue'])) {
                     $reqAttrAuxStr = '>';
                     if (is_string($attribute['attributeValue'])) {
-                        $attribute['attributeValue'] = [$attribute['attributeValue']];
+                        $attribute['attributeValue'] = array($attribute['attributeValue']);
                     }
                     foreach ($attribute['attributeValue'] as $attrValue) {
-                        $reqAttrAuxStr .= <<<ATTRIBUTEVALUE
+                        $reqAttrAuxStr .=<<<ATTRIBUTEVALUE
 
                 <saml:AttributeValue xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">{$attrValue}</saml:AttributeValue>
 ATTRIBUTEVALUE;
@@ -136,7 +138,7 @@ ATTRIBUTEVALUE;
                     $reqAttrAuxStr .= "\n            </md:RequestedAttribute>";
                 }
 
-                $requestedAttributeData[] = $requestedAttributeStr.$reqAttrAuxStr;
+                $requestedAttributeData[] = $requestedAttributeStr . $reqAttrAuxStr;
             }
 
             $requestedAttributeStr = implode(PHP_EOL, $requestedAttributeData);
@@ -165,18 +167,17 @@ METADATA_TEMPLATE;
     </md:SPSSODescriptor>{$strOrganization}{$strContacts}
 </md:EntityDescriptor>
 METADATA_TEMPLATE;
-
         return $metadata;
     }
 
     /**
-     * Signs the metadata with the key/cert provided.
+     * Signs the metadata with the key/cert provided
      *
-     * @param string $metadata        SAML Metadata XML
-     * @param string $key             x509 key
-     * @param string $cert            x509 cert
-     * @param string $signAlgorithm   Signature algorithm method
-     * @param string $digestAlgorithm Digest algorithm method
+     * @param string $metadata          SAML Metadata XML
+     * @param string $key               x509 key
+     * @param string $cert              x509 cert
+     * @param string $signAlgorithm     Signature algorithm method
+     * @param string $digestAlgorithm   Digest algorithm method
      *
      * @return string Signed Metadata
      */
@@ -187,7 +188,7 @@ METADATA_TEMPLATE;
 
     /**
      * Adds the x509 descriptors (sign/encriptation) to the metadata
-     * The same cert will be used for sign/encrypt.
+     * The same cert will be used for sign/encrypt
      *
      * @param string $metadata       SAML Metadata XML
      * @param string $cert           x509 cert
@@ -218,11 +219,11 @@ METADATA_TEMPLATE;
         $keyInfo = $xml->createElementNS(OneLogin_Saml2_Constants::NS_DS, 'ds:KeyInfo');
         $keyInfo->appendChild($keyData);
 
-        $keyDescriptor = $xml->createElementNS(OneLogin_Saml2_Constants::NS_MD, 'md:KeyDescriptor');
+        $keyDescriptor = $xml->createElementNS(OneLogin_Saml2_Constants::NS_MD, "md:KeyDescriptor");
 
         $SPSSODescriptor = $xml->getElementsByTagName('SPSSODescriptor')->item(0);
         $SPSSODescriptor->insertBefore($keyDescriptor->cloneNode(), $SPSSODescriptor->firstChild);
-        if (true === $wantsEncrypted) {
+        if ($wantsEncrypted === true) {
             $SPSSODescriptor->insertBefore($keyDescriptor->cloneNode(), $SPSSODescriptor->firstChild);
         }
 
@@ -230,7 +231,7 @@ METADATA_TEMPLATE;
         $signing->setAttribute('use', 'signing');
         $signing->appendChild($keyInfo);
 
-        if (true === $wantsEncrypted) {
+        if ($wantsEncrypted === true) {
             $encryption = $xml->getElementsByTagName('KeyDescriptor')->item(1);
             $encryption->setAttribute('use', 'encryption');
 

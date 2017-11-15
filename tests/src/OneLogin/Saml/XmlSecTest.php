@@ -6,9 +6,9 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->_settings = new OneLogin_Saml_Settings();
+        $this->_settings = new OneLogin_Saml_Settings;
 
-        $settingsDir = TEST_ROOT.'/settings/';
+        $settingsDir = TEST_ROOT .'/settings/';
         include $settingsDir.'settings1.php';
 
         $this->_settings->spIssuer = $settingsInfo['sp']['entityId'];
@@ -18,10 +18,10 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
         $cert = $settingsInfo['idp']['x509cert'];
 
-        $x509cert = str_replace(["\x0D", "\r", "\n"], '', $cert);
+        $x509cert = str_replace(array("\x0D", "\r", "\n"), "", $cert);
         if (!empty($x509cert)) {
-            $x509cert = str_replace('-----BEGIN CERTIFICATE-----', '', $x509cert);
-            $x509cert = str_replace('-----END CERTIFICATE-----', '', $x509cert);
+            $x509cert = str_replace('-----BEGIN CERTIFICATE-----', "", $x509cert);
+            $x509cert = str_replace('-----END CERTIFICATE-----', "", $x509cert);
             $x509cert = str_replace(' ', '', $x509cert);
 
             $x509cert = "-----BEGIN CERTIFICATE-----\n".chunk_split($x509cert, 64, "\n")."-----END CERTIFICATE-----\n";
@@ -32,7 +32,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateNumAssertions()
     {
-        $assertion = file_get_contents(TEST_ROOT.'/data/responses/response1.xml.base64');
+        $assertion = file_get_contents(TEST_ROOT . '/data/responses/response1.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $assertion);
 
         $xmlSec = new OneLogin_Saml_XmlSec($this->_settings, $response);
@@ -42,14 +42,15 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateTimestampsInvalid()
     {
-        $assertion = file_get_contents(TEST_ROOT.'/data/responses/invalids/not_before_failed.xml.base64');
+        $assertion = file_get_contents(TEST_ROOT . '/data/responses/invalids/not_before_failed.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $assertion);
 
         $xmlSec = new OneLogin_Saml_XmlSec($this->_settings, $response);
 
         $this->assertFalse($xmlSec->validateTimestamps());
 
-        $assertion2 = file_get_contents(TEST_ROOT.'/data/responses/invalids/not_after_failed.xml.base64');
+
+        $assertion2 = file_get_contents(TEST_ROOT . '/data/responses/invalids/not_after_failed.xml.base64');
         $response2 = new OneLogin_Saml_Response($this->_settings, $assertion2);
 
         $xmlSec2 = new OneLogin_Saml_XmlSec($this->_settings, $response2);
@@ -59,7 +60,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateTimestampsValid()
     {
-        $assertion = file_get_contents(TEST_ROOT.'/data/responses/valid_response.xml.base64');
+        $assertion = file_get_contents(TEST_ROOT . '/data/responses/valid_response.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $assertion);
 
         $xmlSec = new OneLogin_Saml_XmlSec($this->_settings, $response);
@@ -69,7 +70,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateAssertionUnsigned()
     {
-        $assertionUnsigned = file_get_contents(TEST_ROOT.'/data/responses/invalids/no_signature.xml.base64');
+        $assertionUnsigned = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_signature.xml.base64');
         $responseUnsigned = new OneLogin_Saml_Response($this->_settings, $assertionUnsigned);
         $xmlSecUnsigned = new OneLogin_Saml_XmlSec($this->_settings, $responseUnsigned);
         try {
@@ -82,7 +83,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateAssertionBadReference()
     {
-        $assertionBadReference = file_get_contents(TEST_ROOT.'/data/responses/invalids/bad_reference.xml.base64');
+        $assertionBadReference = file_get_contents(TEST_ROOT . '/data/responses/invalids/bad_reference.xml.base64');
         $responseBadReference = new OneLogin_Saml_Response($this->_settings, $assertionBadReference);
         $xmlSecBadReference = new OneLogin_Saml_XmlSec($this->_settings, $responseBadReference);
         try {
@@ -95,7 +96,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateAssertionMultiple()
     {
-        $assertionMulti = file_get_contents(TEST_ROOT.'/data/responses/invalids/multiple_assertions.xml.base64');
+        $assertionMulti = file_get_contents(TEST_ROOT . '/data/responses/invalids/multiple_assertions.xml.base64');
         $responseMulti = new OneLogin_Saml_Response($this->_settings, $assertionMulti);
         $xmlSecMulti = new OneLogin_Saml_XmlSec($this->_settings, $responseMulti);
         try {
@@ -108,7 +109,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateAssertionExpired()
     {
-        $assertionExpired = file_get_contents(TEST_ROOT.'/data/responses/expired_response.xml.base64');
+        $assertionExpired = file_get_contents(TEST_ROOT . '/data/responses/expired_response.xml.base64');
         $responseExpired = new OneLogin_Saml_Response($this->_settings, $assertionExpired);
         $xmlSecExpired = new OneLogin_Saml_XmlSec($this->_settings, $responseExpired);
         try {
@@ -121,7 +122,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateAssertionNoKey()
     {
-        $assertionNoKey = file_get_contents(TEST_ROOT.'/data/responses/invalids/no_key.xml.base64');
+        $assertionNoKey = file_get_contents(TEST_ROOT . '/data/responses/invalids/no_key.xml.base64');
         $responseNoKey = new OneLogin_Saml_Response($this->_settings, $assertionNoKey);
         $xmlSecNoKey = new OneLogin_Saml_XmlSec($this->_settings, $responseNoKey);
         try {
@@ -134,7 +135,7 @@ class OneLogin_Saml_XmlSecTest extends PHPUnit_Framework_TestCase
 
     public function testValidateAssertionValid()
     {
-        $assertion = file_get_contents(TEST_ROOT.'/data/responses/valid_response.xml.base64');
+        $assertion = file_get_contents(TEST_ROOT . '/data/responses/valid_response.xml.base64');
         $response = new OneLogin_Saml_Response($this->_settings, $assertion);
 
         $xmlSec = new OneLogin_Saml_XmlSec($this->_settings, $response);
