@@ -230,7 +230,7 @@ class OneLogin_Saml2_Auth
         if (null !== ($samlResponse = $request->get('SAMLResponse', null))) {
             $logoutResponse = new OneLogin_Saml2_LogoutResponse($this->_settings, $samlResponse);
             $this->_lastResponse = $logoutResponse->getXML();
-            if (!$logoutResponse->isValid($requestId, $retrieveParametersFromServer)) {
+            if (!$logoutResponse->isValid($request, $requestId, $retrieveParametersFromServer)) {
                 $this->_errors[] = 'invalid_logout_response';
                 $this->_errorReason = $logoutResponse->getError();
             } else if ($logoutResponse->getStatus() !== OneLogin_Saml2_Constants::STATUS_SUCCESS) {
