@@ -366,7 +366,7 @@ LOGOUTREQUEST;
                 }
             }
 
-            if (isset($request->get('Signature'))) {
+            if (null !== $request->get('Signature')) {
                 $signatureValid = OneLogin_Saml2_Utils::validateBinarySign("SAMLRequest", $request, $idpData, $retrieveParametersFromServer);
                 if (!$signatureValid) {
                     throw new OneLogin_Saml2_ValidationError(

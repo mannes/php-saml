@@ -223,17 +223,23 @@ class OneLogin_Saml2_Auth
      *
      * @throws OneLogin_Saml2_Error
      */
-    public function processSLO(Request $request, $keepLocalSession = false, $requestId = null, $retrieveParametersFromServer = false, $cbDeleteSession = null, $stay = false)
-    {
+    public function processSLO(
+        Request $request,
+        $keepLocalSession = false,
+        $requestId = null,
+        $retrieveParametersFromServer = false,
+        $cbDeleteSession = null,
+        $stay = false
+    ) {
         $this->_errors = array();
         $this->_errorReason = null;
-        if (null !== ($samlResponse = $request->get('SAMLResponse', null))) {
+        if (null !== ($samlResponse = $request->get('SAMLResponse'))) {
             $logoutResponse = new OneLogin_Saml2_LogoutResponse($this->_settings, $samlResponse);
             $this->_lastResponse = $logoutResponse->getXML();
-            if (!$logoutResponse->isValid($requestId, $retrieveParametersFromServer)) {
+            if (!$logoutResponse->isValid($request, $requestId, $retrieveParametersFromServer)) {
                 $this->_errors[] = 'invalid_logout_response';
                 $this->_errorReason = $logoutResponse->getError();
-            } else if ($logoutResponse->getStatus() !== OneLogin_Saml2_Constants::STATUS_SUCCESS) {
+            } elseif ($logoutResponse->getStatus() !== OneLogin_Saml2_Constants::STATUS_SUCCESS) {
                 $this->_errors[] = 'logout_not_success';
             } else {
                 $this->_lastMessageId = $logoutResponse->id;
@@ -245,7 +251,7 @@ class OneLogin_Saml2_Auth
                     }
                 }
             }
-        } else if (null !== ($samlRequest = $request->get('SAMLRequest', null))) {
+        } elseif (null !== ($samlRequest = $request->get('SAMLRequest'))) {
             $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings, $samlRequest);
             $this->_lastRequest = $logoutRequest->getXML();
             if (!$logoutRequest->isValid($request, $retrieveParametersFromServer)) {
@@ -274,7 +280,11 @@ class OneLogin_Saml2_Auth
 
                 $security = $this->_settings->getSecurityData();
                 if (isset($security['logoutResponseSigned']) && $security['logoutResponseSigned']) {
-                    $signature = $this->buildResponseSignature($logoutResponse, isset($parameters['RelayState'])? $parameters['RelayState']: null, $security['signatureAlgorithm']);
+                    $signature = $this->buildResponseSignature(
+                        $logoutResponse,
+                        isset($parameters['RelayState'])? $parameters['RelayState']: null,
+                        $security['signatureAlgorithm']
+                    );
                     $parameters['SigAlg'] = $security['signatureAlgorithm'];
                     $parameters['Signature'] = $signature;
                 }
@@ -297,7 +307,7 @@ class OneLogin_Saml2_Auth
      * @param string $url        The target URL to redirect the user.
      * @param array  $parameters Extra parameters to be passed as part of the url
      * @param bool   $stay       True if we want to stay (returns the url string) False to redirect
-     * @return string|RedirectResponse|null
+     * @return string|RedirectResponse
      */
     public function redirectTo($url = '', $parameters = array(), $stay = false)
     {
@@ -315,9 +325,9 @@ class OneLogin_Saml2_Auth
 
         if ($stay) {
             return OneLogin_Saml2_Utils::redirect($url, $parameters, $stay);
-        } else {
-            return new RedirectResponse(OneLogin_Saml2_Utils::redirect($url, $parameters, true));
         }
+
+        return new RedirectResponse(OneLogin_Saml2_Utils::redirect($url, $parameters, true));
     }
 
     /**
