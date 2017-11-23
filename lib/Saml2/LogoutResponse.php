@@ -38,6 +38,8 @@ class OneLogin_Saml2_LogoutResponse
     */
     private $_error;
 
+    protected $utils;
+
     /**
      * Constructs a Logout Response object (Initialize params from settings and if provided
      * load the Logout Response.
@@ -45,13 +47,14 @@ class OneLogin_Saml2_LogoutResponse
      * @param OneLogin_Saml2_Settings $settings Settings.
      * @param string|null             $response An UUEncoded SAML Logout response from the IdP.
      */
-    public function __construct(OneLogin_Saml2_Settings $settings, $response = null)
+    public function __construct(OneLogin_Saml2_Utils $utils, OneLogin_Saml2_Settings $settings, $response = null)
     {
         $this->_settings = $settings;
+        $this->utils = $utils;
 
         $baseURL = $this->_settings->getBaseURL();
         if (!empty($baseURL)) {
-            OneLogin_Saml2_Utils::setBaseURL($baseURL);
+            $this->utils->setBaseURL($baseURL);
         }
 
         if ($response) {
@@ -63,7 +66,7 @@ class OneLogin_Saml2_LogoutResponse
                 $this->_logoutResponse = $decoded;
             }
             $this->document = new DOMDocument();
-            $this->document = OneLogin_Saml2_Utils::loadXML($this->document, $this->_logoutResponse);
+            $this->document = $this->utils->loadXML($this->document, $this->_logoutResponse);
 
             if ($this->document->documentElement->hasAttribute('ID')) {
                 $this->id = $this->document->documentElement->getAttribute('ID');
@@ -122,7 +125,7 @@ class OneLogin_Saml2_LogoutResponse
                 $security = $this->_settings->getSecurityData();
 
                 if ($security['wantXMLValidation']) {
-                    $res = OneLogin_Saml2_Utils::validateXML($this->document, 'saml-schema-protocol-2.0.xsd', $this->_settings->isDebugActive());
+                    $res = $this->utils->validateXML($this->document, 'saml-schema-protocol-2.0.xsd', $this->_settings->isDebugActive());
                     if (!$res instanceof DOMDocument) {
                         throw new OneLogin_Saml2_ValidationError(
                             "Invalid SAML Logout Response. Not match the saml-schema-protocol-2.0.xsd",
@@ -151,7 +154,7 @@ class OneLogin_Saml2_LogoutResponse
                     );
                 }
 
-                $currentURL = OneLogin_Saml2_Utils::getSelfRoutedURLNoQuery();
+                $currentURL = $this->utils->getSelfRoutedURLNoQuery();
 
                 // Check destination
                 if ($this->document->documentElement->hasAttribute('Destination')) {
@@ -177,7 +180,7 @@ class OneLogin_Saml2_LogoutResponse
             }
 
             if (null !== $request->get('Signature')) {
-                $signatureValid = OneLogin_Saml2_Utils::validateBinarySign("SAMLResponse", $request, $idpData, $retrieveParametersFromServer);
+                $signatureValid = $this->utils->OneLogin_Saml2_UtilsvalidateBinarySign("SAMLResponse", $request, $idpData, $retrieveParametersFromServer);
                 if (!$signatureValid) {
                     throw new OneLogin_Saml2_ValidationError(
                         "Signature validation failed. Logout Response rejected",
@@ -205,7 +208,7 @@ class OneLogin_Saml2_LogoutResponse
      */
     private function _query($query)
     {
-        return OneLogin_Saml2_Utils::query($this->document, $query);
+        return $this->utils->query($this->document, $query);
 
     }
 
@@ -220,8 +223,8 @@ class OneLogin_Saml2_LogoutResponse
         $spData = $this->_settings->getSPData();
         $idpData = $this->_settings->getIdPData();
 
-        $this->id = OneLogin_Saml2_Utils::generateUniqueID();
-        $issueInstant = OneLogin_Saml2_Utils::parseTime2SAML(time());
+        $this->id = $this->utils->generateUniqueID();
+        $issueInstant = $this->utils->parseTime2SAML(time());
 
         $spEntityId = htmlspecialchars($spData['entityId'], ENT_QUOTES);
         $logoutResponse = <<<LOGOUTRESPONSE

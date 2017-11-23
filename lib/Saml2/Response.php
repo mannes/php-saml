@@ -104,8 +104,6 @@ class OneLogin_Saml2_Response
     {
         $this->_error = null;
         try {
-            echo $this->document->saveXML();
-
             // Check SAML version
             if ($this->document->documentElement->getAttribute('Version') != '2.0') {
                 throw new OneLogin_Saml2_ValidationError(
@@ -395,7 +393,16 @@ class OneLogin_Saml2_Response
 
                 # If find a Signature on the Assertion (decrypted assertion if was encrypted)
                 $documentToCheckAssertion = $this->encrypted ? $this->decryptedDocument : $this->document;
-                if ($hasSignedAssertion && !$this->utils->validateSign($documentToCheckAssertion, $cert, $fingerprint, $fingerprintalg, $this->utils->ASSERTION_SIGNATURE_XPATH, $multiCerts)) {
+                if (
+                    $hasSignedAssertion &&
+                    !$this->utils->validateSign(
+                        $documentToCheckAssertion,
+                        $cert,
+                        $fingerprint,
+                        $fingerprintalg,
+                        OneLogin_Saml2_Utils::ASSERTION_SIGNATURE_XPATH,
+                        $multiCerts
+                    )) {
                     throw new OneLogin_Saml2_ValidationError(
                         "Signature validation failed. SAML Response rejected",
                         OneLogin_Saml2_ValidationError::INVALID_SIGNATURE

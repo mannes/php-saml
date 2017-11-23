@@ -17,28 +17,28 @@ class OneLogin_Saml2_Utils
     /**
      * @var bool Control if the `Forwarded-For-*` headers are used
      */
-    private static $_proxyVars = false;
+    private $_proxyVars = false;
 
 
     /**
      * @var string|null
      */
-    private static $_host;
+    private $_host;
 
     /**
      * @var string|null
      */
-    private static $_protocol;
+    private $_protocol;
 
     /**
      * @var int|null
      */
-    private static $_port;
+    private $_port;
 
     /**
      * @var string|null
      */
-    private static $_baseurlpath;
+    private $_baseurlpath;
 
     protected $urlGenerator;
 
