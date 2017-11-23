@@ -51,6 +51,8 @@ class OneLogin_Saml2_Response
      */
     private $_validSCDNotOnOrAfter;
 
+    protected $utils;
+
     /**
      * Constructs the SAML Response object.
      *
@@ -59,19 +61,20 @@ class OneLogin_Saml2_Response
      *
      * @throws Exception
      */
-    public function __construct(OneLogin_Saml2_Settings $settings, $response)
+    public function __construct(OneLogin_Saml2_Utils $utils, OneLogin_Saml2_Settings $settings, $response)
     {
         $this->_settings = $settings;
+        $this->utils = $utils;
 
         $baseURL = $this->_settings->getBaseURL();
         if (!empty($baseURL)) {
-            OneLogin_Saml2_Utils::setBaseURL($baseURL);
+            $this->utils->setBaseURL($baseURL);
         }
 
         $this->response = base64_decode($response);
 
         $this->document = new DOMDocument();
-        $this->document = OneLogin_Saml2_Utils::loadXML($this->document, $this->response);
+        $this->document = $this->utils->loadXML($this->document, $this->response);
         if (!$this->document) {
             throw new OneLogin_Saml2_ValidationError(
                 "SAML Response could not be processed",
@@ -101,6 +104,8 @@ class OneLogin_Saml2_Response
     {
         $this->_error = null;
         try {
+            echo $this->document->saveXML();
+
             // Check SAML version
             if ($this->document->documentElement->getAttribute('Version') != '2.0') {
                 throw new OneLogin_Saml2_ValidationError(
@@ -144,7 +149,7 @@ class OneLogin_Saml2_Response
 
                 if ($security['wantXMLValidation']) {
                     $errorXmlMsg = "Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd";
-                    $res = OneLogin_Saml2_Utils::validateXML($this->document, 'saml-schema-protocol-2.0.xsd', $this->_settings->isDebugActive());
+                    $res = $this->utils->validateXML($this->document, 'saml-schema-protocol-2.0.xsd', $this->_settings->isDebugActive());
                     if (!$res instanceof DOMDocument) {
                         throw new OneLogin_Saml2_ValidationError(
                             $errorXmlMsg,
@@ -154,7 +159,7 @@ class OneLogin_Saml2_Response
 
                     # If encrypted, check also the decrypted document
                     if ($this->encrypted) {
-                        $res = OneLogin_Saml2_Utils::validateXML($this->decryptedDocument, 'saml-schema-protocol-2.0.xsd', $this->_settings->isDebugActive());
+                        $res = $this->utils->validateXML($this->decryptedDocument, 'saml-schema-protocol-2.0.xsd', $this->_settings->isDebugActive());
                         if (!$res instanceof DOMDocument) {
                             throw new OneLogin_Saml2_ValidationError(
                                 $errorXmlMsg,
@@ -165,7 +170,7 @@ class OneLogin_Saml2_Response
 
                 }
 
-                $currentURL = OneLogin_Saml2_Utils::getSelfRoutedURLNoQuery();
+                $currentURL = $this->utils->getSelfRoutedURLNoQuery();
                 
                 if ($this->document->documentElement->hasAttribute('InResponseTo')) {
                     $responseInResponseTo = $this->document->documentElement->getAttribute('InResponseTo');
@@ -238,7 +243,7 @@ class OneLogin_Saml2_Response
                         }
                     } else {
                         if (strpos($destination, $currentURL) !== 0) {
-                            $currentURLNoRouted = OneLogin_Saml2_Utils::getSelfURLNoQuery();
+                            $currentURLNoRouted = $this->utils->getSelfURLNoQuery();
 
                             if (strpos($destination, $currentURLNoRouted) !== 0) {
                                 throw new OneLogin_Saml2_ValidationError(
@@ -309,13 +314,13 @@ class OneLogin_Saml2_Response
                             }
                         }
                         if ($scnData->hasAttribute('NotOnOrAfter')) {
-                            $noa = OneLogin_Saml2_Utils::parseSAML2Time($scnData->getAttribute('NotOnOrAfter'));
+                            $noa = $this->utils->parseSAML2Time($scnData->getAttribute('NotOnOrAfter'));
                             if ($noa + OneLogin_Saml2_Constants::ALLOWED_CLOCK_DRIFT <= time()) {
                                 continue;
                             }
                         }
                         if ($scnData->hasAttribute('NotBefore')) {
-                            $nb = OneLogin_Saml2_Utils::parseSAML2Time($scnData->getAttribute('NotBefore'));
+                            $nb = $this->utils->parseSAML2Time($scnData->getAttribute('NotBefore'));
                             if ($nb > time() + OneLogin_Saml2_Constants::ALLOWED_CLOCK_DRIFT) {
                                 continue;
                             }
@@ -354,7 +359,7 @@ class OneLogin_Saml2_Response
 
             // Detect case not supported
             if ($this->encrypted) {
-                $encryptedIDNodes = OneLogin_Saml2_Utils::query($this->decryptedDocument, '/samlp:Response/saml:Assertion/saml:Subject/saml:EncryptedID');
+                $encryptedIDNodes = $this->utils->query($this->decryptedDocument, '/samlp:Response/saml:Assertion/saml:Subject/saml:EncryptedID');
                 if ($encryptedIDNodes->length > 0) {
                     throw new OneLogin_Saml2_ValidationError(
                         'Unsigned SAML Response that contains a signed and encrypted Assertion with encrypted nameId is not supported.',
@@ -381,7 +386,7 @@ class OneLogin_Saml2_Response
                 }
 
                 # If find a Signature on the Response, validates it checking the original response
-                if ($hasSignedResponse && !OneLogin_Saml2_Utils::validateSign($this->document, $cert, $fingerprint, $fingerprintalg, OneLogin_Saml2_Utils::RESPONSE_SIGNATURE_XPATH, $multiCerts)) {
+                if ($hasSignedResponse && !$this->utils->validateSign($this->document, $cert, $fingerprint, $fingerprintalg, $this->utils->RESPONSE_SIGNATURE_XPATH, $multiCerts)) {
                     throw new OneLogin_Saml2_ValidationError(
                         "Signature validation failed. SAML Response rejected",
                         OneLogin_Saml2_ValidationError::INVALID_SIGNATURE
@@ -390,7 +395,7 @@ class OneLogin_Saml2_Response
 
                 # If find a Signature on the Assertion (decrypted assertion if was encrypted)
                 $documentToCheckAssertion = $this->encrypted ? $this->decryptedDocument : $this->document;
-                if ($hasSignedAssertion && !OneLogin_Saml2_Utils::validateSign($documentToCheckAssertion, $cert, $fingerprint, $fingerprintalg, OneLogin_Saml2_Utils::ASSERTION_SIGNATURE_XPATH, $multiCerts)) {
+                if ($hasSignedAssertion && !$this->utils->validateSign($documentToCheckAssertion, $cert, $fingerprint, $fingerprintalg, $this->utils->ASSERTION_SIGNATURE_XPATH, $multiCerts)) {
                     throw new OneLogin_Saml2_ValidationError(
                         "Signature validation failed. SAML Response rejected",
                         OneLogin_Saml2_ValidationError::INVALID_SIGNATURE
@@ -454,7 +459,7 @@ class OneLogin_Saml2_Response
      */
     public function checkStatus()
     {
-        $status = OneLogin_Saml2_Utils::getStatus($this->document);
+        $status = $this->utils->getStatus($this->document);
 
         if (isset($status['code']) && $status['code'] !== OneLogin_Saml2_Constants::STATUS_SUCCESS) {
             $explodedCode = explode(':', $status['code']);
@@ -531,7 +536,7 @@ class OneLogin_Saml2_Response
     {
         $issuers = array();
 
-        $responseIssuer = OneLogin_Saml2_Utils::query($this->document, '/samlp:Response/saml:Issuer');
+        $responseIssuer = $this->utils->query($this->document, '/samlp:Response/saml:Issuer');
         if ($responseIssuer->length > 0) {
             if ($responseIssuer->length == 1) {
                 $issuers[] = $responseIssuer->item(0)->textContent;
@@ -572,7 +577,7 @@ class OneLogin_Saml2_Response
             $seckey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, array('type'=>'private'));
             $seckey->loadKey($key);
 
-            $nameId = OneLogin_Saml2_Utils::decryptElement($encryptedData, $seckey);
+            $nameId = $this->utils->decryptElement($encryptedData, $seckey);
 
         } else {
             $entries = $this->_queryAssertion('/saml:Subject/saml:NameID');
@@ -676,7 +681,7 @@ class OneLogin_Saml2_Response
         $notOnOrAfter = null;
         $entries = $this->_queryAssertion('/saml:AuthnStatement[@SessionNotOnOrAfter]');
         if ($entries->length !== 0) {
-            $notOnOrAfter = OneLogin_Saml2_Utils::parseSAML2Time($entries->item(0)->getAttribute('SessionNotOnOrAfter'));
+            $notOnOrAfter = $this->utils->parseSAML2Time($entries->item(0)->getAttribute('SessionNotOnOrAfter'));
         }
         return $notOnOrAfter;
     }
@@ -718,7 +723,7 @@ class OneLogin_Saml2_Response
                 $key = $this->_settings->getSPkey();
                 $seckey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, array('type'=>'private'));
                 $seckey->loadKey($key);
-                $attribute = OneLogin_Saml2_Utils::decryptElement($encriptedAttribute->firstChild(), $seckey);
+                $attribute = $this->utils->decryptElement($encriptedAttribute->firstChild(), $seckey);
             }
         }
         */
@@ -877,13 +882,13 @@ class OneLogin_Saml2_Response
         for ($i = 0; $i < $timestampNodes->length; $i++) {
             $nbAttribute = $timestampNodes->item($i)->attributes->getNamedItem("NotBefore");
             $naAttribute = $timestampNodes->item($i)->attributes->getNamedItem("NotOnOrAfter");
-            if ($nbAttribute && OneLogin_SAML2_Utils::parseSAML2Time($nbAttribute->textContent) > time() + OneLogin_Saml2_Constants::ALLOWED_CLOCK_DRIFT) {
+            if ($nbAttribute && $this->utils->parseSAML2Time($nbAttribute->textContent) > time() + OneLogin_Saml2_Constants::ALLOWED_CLOCK_DRIFT) {
                 throw new OneLogin_Saml2_ValidationError(
                     'Could not validate timestamp: not yet valid. Check system clock.',
                     OneLogin_Saml2_ValidationError::ASSERTION_TOO_EARLY
                 );
             }
-            if ($naAttribute && OneLogin_SAML2_Utils::parseSAML2Time($naAttribute->textContent) + OneLogin_Saml2_Constants::ALLOWED_CLOCK_DRIFT <= time()) {
+            if ($naAttribute && $this->utils->parseSAML2Time($naAttribute->textContent) + OneLogin_Saml2_Constants::ALLOWED_CLOCK_DRIFT <= time()) {
                 throw new OneLogin_Saml2_ValidationError(
                     'Could not validate timestamp: expired. Check system clock.',
                     OneLogin_Saml2_ValidationError::ASSERTION_EXPIRED
@@ -918,7 +923,7 @@ class OneLogin_Saml2_Response
         // Check that the signed elements found here, are the ones that will be verified
         // by OneLogin_Saml2_Utils->validateSign()
         if (in_array($responseTag, $signedElements)) {
-            $expectedSignatureNodes = OneLogin_Saml2_Utils::query($this->document, OneLogin_Saml2_Utils::RESPONSE_SIGNATURE_XPATH);
+            $expectedSignatureNodes = $this->utils->query($this->document, OneLogin_Saml2_Utils::RESPONSE_SIGNATURE_XPATH);
             if ($expectedSignatureNodes->length != 1) {
                 throw new OneLogin_Saml2_ValidationError(
                     "Unexpected number of Response signatures found. SAML Response rejected.",
@@ -1003,9 +1008,9 @@ class OneLogin_Saml2_Response
     private function _query($query)
     {
         if ($this->encrypted) {
-            return OneLogin_Saml2_Utils::query($this->decryptedDocument, $query);
+            return $this->utils->query($this->decryptedDocument, $query);
         } else {
-            return OneLogin_Saml2_Utils::query($this->document, $query);
+            return $this->utils->query($this->document, $query);
         }
     }
 

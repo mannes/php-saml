@@ -33,7 +33,7 @@ class OneLogin_Saml2_AuthnRequest
      * @param bool   $isPassive       When true the AuthNReuqest will set the Ispassive='true'
      * @param bool   $setNameIdPolicy When true the AuthNReuqest will set a nameIdPolicy
      */
-    public function __construct(OneLogin_Saml2_Settings $settings, $forceAuthn = false, $isPassive = false, $setNameIdPolicy = true)
+    public function __construct(OneLogin_Saml2_Utils $utils, OneLogin_Saml2_Settings $settings, $forceAuthn = false, $isPassive = false, $setNameIdPolicy = true)
     {
         $this->_settings = $settings;
 
@@ -41,8 +41,8 @@ class OneLogin_Saml2_AuthnRequest
         $idpData = $this->_settings->getIdPData();
         $security = $this->_settings->getSecurityData();
 
-        $id = OneLogin_Saml2_Utils::generateUniqueID();
-        $issueInstant = OneLogin_Saml2_Utils::parseTime2SAML(time());
+        $id = $utils->generateUniqueID();
+        $issueInstant = $utils->parseTime2SAML(time());
 
         $nameIdPolicyStr = '';
         if ($setNameIdPolicy) {

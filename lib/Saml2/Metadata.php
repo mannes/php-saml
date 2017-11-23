@@ -181,9 +181,9 @@ METADATA_TEMPLATE;
      *
      * @return string Signed Metadata
      */
-    public static function signMetadata($metadata, $key, $cert, $signAlgorithm = XMLSecurityKey::RSA_SHA1, $digestAlgorithm = XMLSecurityDSig::SHA1)
+    public static function signMetadata(OneLogin_Saml2_Utils $utils, $metadata, $key, $cert, $signAlgorithm = XMLSecurityKey::RSA_SHA1, $digestAlgorithm = XMLSecurityDSig::SHA1)
     {
-        return OneLogin_Saml2_Utils::addSign($metadata, $key, $cert, $signAlgorithm, $digestAlgorithm);
+        return $utils->addSign($metadata, $key, $cert, $signAlgorithm, $digestAlgorithm);
     }
 
     /**
@@ -196,13 +196,13 @@ METADATA_TEMPLATE;
      *
      * @return string Metadata with KeyDescriptors
      */
-    public static function addX509KeyDescriptors($metadata, $cert, $wantsEncrypted = true)
+    public static function addX509KeyDescriptors(OneLogin_Saml2_Utils $utils, $metadata, $cert, $wantsEncrypted = true)
     {
         $xml = new DOMDocument();
         $xml->preserveWhiteSpace = false;
         $xml->formatOutput = true;
         try {
-            $xml = OneLogin_Saml2_Utils::loadXML($xml, $metadata);
+            $xml = $utils->loadXML($xml, $metadata);
             if (!$xml) {
                 throw new Exception('Error parsing metadata');
             }
@@ -210,7 +210,7 @@ METADATA_TEMPLATE;
             throw new Exception('Error parsing metadata. '.$e->getMessage());
         }
 
-        $formatedCert = OneLogin_Saml2_Utils::formatCert($cert, false);
+        $formatedCert = $utils->formatCert($cert, false);
         $x509Certificate = $xml->createElementNS(OneLogin_Saml2_Constants::NS_DS, 'X509Certificate', $formatedCert);
 
         $keyData = $xml->createElementNS(OneLogin_Saml2_Constants::NS_DS, 'ds:X509Data');

@@ -10,11 +10,11 @@ class OneLogin_Saml_Response extends OneLogin_Saml2_Response
      * @param array|object $oldSettings Settings
      * @param string       $assertion  SAML Response
      */
-    public function __construct($oldSettings, $assertion)
+    public function __construct(OneLogin_Saml2_Utils $utils, $oldSettings, $assertion)
     {
         $auth = new OneLogin_Saml2_Auth($oldSettings);
         $settings = $auth->getSettings();
-        parent::__construct($settings, $assertion);
+        parent::__construct($utils, $settings, $assertion);
     }
 
     /**

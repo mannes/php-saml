@@ -92,6 +92,8 @@ class OneLogin_Saml2_Settings
      */
     private $_spValidationOnly = false;
 
+    protected $utils;
+
     /**
      * Initializes the settings:
      * - Sets the paths of the different folders
@@ -103,8 +105,10 @@ class OneLogin_Saml2_Settings
      * @throws OneLogin_Saml2_Error If any settings parameter is invalid
      * @throws Exception If OneLogin_Saml2_Settings is incorrectly supplied
      */
-    public function __construct($settings = null, $spValidationOnly = false)
+    public function __construct(OneLogin_Saml2_Utils $utils, $settings = null, $spValidationOnly = false)
     {
+        $this->utils = $utils;
+
         $this->_spValidationOnly = $spValidationOnly;
         $this->_loadPaths();
 
@@ -899,7 +903,7 @@ class OneLogin_Saml2_Settings
         assert('is_string($xml)');
 
         $errors = array();
-        $res = OneLogin_Saml2_Utils::validateXML($xml, 'saml-schema-metadata-2.0.xsd', $this->_debug);
+        $res = $this->utils->validateXML($xml, 'saml-schema-metadata-2.0.xsd', $this->_debug);
         if (!$res instanceof DOMDocument) {
             $errors[] = $res;
         } else {
@@ -911,13 +915,13 @@ class OneLogin_Saml2_Settings
                 $validUntil = $cacheDuration = $expireTime = null;
 
                 if ($element->hasAttribute('validUntil')) {
-                    $validUntil = OneLogin_Saml2_Utils::parseSAML2Time($element->getAttribute('validUntil'));
+                    $validUntil = $this->utils->parseSAML2Time($element->getAttribute('validUntil'));
                 }
                 if ($element->hasAttribute('cacheDuration')) {
                     $cacheDuration = $element->getAttribute('cacheDuration');
                 }
 
-                $expireTime = OneLogin_Saml2_Utils::getExpireTime($cacheDuration, $validUntil);
+                $expireTime = $this->utils->getExpireTime($cacheDuration, $validUntil);
                 if (isset($expireTime) && time() > $expireTime) {
                     $errors[] = 'expired_xml';
                 }
@@ -935,7 +939,7 @@ class OneLogin_Saml2_Settings
     public function formatIdPCert()
     {
         if (isset($this->_idp['x509cert'])) {
-            $this->_idp['x509cert'] = OneLogin_Saml2_Utils::formatCert($this->_idp['x509cert']);
+            $this->_idp['x509cert'] = $this->utils->formatCert($this->_idp['x509cert']);
         }
     }
 
@@ -947,12 +951,12 @@ class OneLogin_Saml2_Settings
         if (isset($this->_idp['x509certMulti'])) {
             if (isset($this->_idp['x509certMulti']['signing'])) {
                 foreach ($this->_idp['x509certMulti']['signing'] as $i => $cert) {
-                    $this->_idp['x509certMulti']['signing'][$i] = OneLogin_Saml2_Utils::formatCert($cert);
+                    $this->_idp['x509certMulti']['signing'][$i] = $this->utils->formatCert($cert);
                 }
             }
             if (isset($this->_idp['x509certMulti']['encryption'])) {
                 foreach ($this->_idp['x509certMulti']['encryption'] as $i => $cert) {
-                    $this->_idp['x509certMulti']['encryption'][$i] = OneLogin_Saml2_Utils::formatCert($cert);
+                    $this->_idp['x509certMulti']['encryption'][$i] = $this->utils->formatCert($cert);
                 }
             }
         }
@@ -964,7 +968,7 @@ class OneLogin_Saml2_Settings
     public function formatSPCert()
     {
         if (isset($this->_sp['x509cert'])) {
-            $this->_sp['x509cert'] = OneLogin_Saml2_Utils::formatCert($this->_sp['x509cert']);
+            $this->_sp['x509cert'] = $this->utils->formatCert($this->_sp['x509cert']);
         }
     }
 
@@ -974,7 +978,7 @@ class OneLogin_Saml2_Settings
     public function formatSPCertNew()
     {
         if (isset($this->_sp['x509certNew'])) {
-            $this->_sp['x509certNew'] = OneLogin_Saml2_Utils::formatCert($this->_sp['x509certNew']);
+            $this->_sp['x509certNew'] = $this->utils->formatCert($this->_sp['x509certNew']);
         }
     }
 
@@ -984,7 +988,7 @@ class OneLogin_Saml2_Settings
     public function formatSPKey()
     {
         if (isset($this->_sp['privateKey'])) {
-            $this->_sp['privateKey'] = OneLogin_Saml2_Utils::formatPrivateKey($this->_sp['privateKey']);
+            $this->_sp['privateKey'] = $this->utils->formatPrivateKey($this->_sp['privateKey']);
         }
     }
 

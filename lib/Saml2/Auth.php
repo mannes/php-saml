@@ -3,6 +3,7 @@
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Main class of OneLogin's PHP Toolkit
@@ -130,14 +131,17 @@ class OneLogin_Saml2_Auth
      */
     private $_lastResponse;
 
+    protected $utils;
+
     /**
      * Initializes the SP SAML instance.
      *
      * @param array|object|null $oldSettings Setting data (You can provide a OneLogin_Saml_Settings, the settings object of the Saml folder implementation)
      */
-    public function __construct($oldSettings = null)
+    public function __construct(UrlGeneratorInterface $urlGenerator, $oldSettings = null)
     {
-        $this->_settings = new OneLogin_Saml2_Settings($oldSettings);
+        $this->utils = new OneLogin_Saml2_Utils($urlGenerator);
+        $this->_settings = new OneLogin_Saml2_Settings($this->utils, $oldSettings);
     }
 
     /**
@@ -182,7 +186,7 @@ class OneLogin_Saml2_Auth
         $this->_errorReason = null;
         if (null !== $samlResponse) {
             // AuthnResponse -- HTTP_POST Binding
-            $response = new OneLogin_Saml2_Response($this->_settings, $samlResponse);
+            $response = new OneLogin_Saml2_Response($this->utils, $this->_settings, $samlResponse);
             $this->_lastResponse = $response->getXMLDocument();
 
             if ($response->isValid($requestId)) {
@@ -245,7 +249,7 @@ class OneLogin_Saml2_Auth
                 $this->_lastMessageId = $logoutResponse->id;
                 if (!$keepLocalSession) {
                     if ($cbDeleteSession === null) {
-                        OneLogin_Saml2_Utils::deleteLocalSession();
+                        $this->utils->deleteLocalSession();
                     } else {
                         call_user_func($cbDeleteSession);
                     }
@@ -260,7 +264,7 @@ class OneLogin_Saml2_Auth
             } else {
                 if (!$keepLocalSession) {
                     if ($cbDeleteSession === null) {
-                        OneLogin_Saml2_Utils::deleteLocalSession();
+                        $this->utils->deleteLocalSession();
                     } else {
                         call_user_func($cbDeleteSession);
                     }
@@ -324,10 +328,10 @@ class OneLogin_Saml2_Auth
          */
 
         if ($stay) {
-            return OneLogin_Saml2_Utils::redirect($url, $parameters, $stay);
+            return $this->utils->redirect($url, $parameters, $stay);
         }
 
-        return new RedirectResponse(OneLogin_Saml2_Utils::redirect($url, $parameters, true));
+        return new RedirectResponse($this->utils->redirect($url, $parameters, true));
     }
 
     /**
@@ -454,7 +458,7 @@ class OneLogin_Saml2_Auth
     {
         assert('is_array($parameters)');
 
-        $authnRequest = new OneLogin_Saml2_AuthnRequest($this->_settings, $forceAuthn, $isPassive, $setNameIdPolicy);
+        $authnRequest = new OneLogin_Saml2_AuthnRequest($this->utils, $this->_settings, $forceAuthn, $isPassive, $setNameIdPolicy);
 
         $this->_lastRequest = $authnRequest->getXML();
         $this->_lastRequestID = $authnRequest->getId();
@@ -465,7 +469,7 @@ class OneLogin_Saml2_Auth
         if (!empty($returnTo)) {
             $parameters['RelayState'] = $returnTo;
         } else {
-            $parameters['RelayState'] = OneLogin_Saml2_Utils::getSelfRoutedURLNoQuery();
+            $parameters['RelayState'] = $this->utils->getSelfRoutedURLNoQuery();
         }
 
         $security = $this->_settings->getSecurityData();
@@ -511,7 +515,7 @@ class OneLogin_Saml2_Auth
             $nameIdFormat = $this->_nameidFormat;
         }
 
-        $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->_settings, null, $nameId, $sessionIndex, $nameIdFormat, $nameIdNameQualifier);
+        $logoutRequest = new OneLogin_Saml2_LogoutRequest($this->utils, $this->_settings, null, $nameId, $sessionIndex, $nameIdFormat, $nameIdNameQualifier);
 
         $this->_lastRequest = $logoutRequest->getXML();
         $this->_lastRequestID = $logoutRequest->id;
@@ -522,7 +526,7 @@ class OneLogin_Saml2_Auth
         if (!empty($returnTo)) {
             $parameters['RelayState'] = $returnTo;
         } else {
-            $parameters['RelayState'] = OneLogin_Saml2_Utils::getSelfRoutedURLNoQuery();
+            $parameters['RelayState'] = $this->utils->getSelfRoutedURLNoQuery();
         }
 
         $security = $this->_settings->getSecurityData();

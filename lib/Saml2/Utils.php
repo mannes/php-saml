@@ -1,5 +1,8 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
 /**
  * Utils of OneLogin PHP Toolkit
  *
@@ -37,6 +40,11 @@ class OneLogin_Saml2_Utils
      */
     private static $_baseurlpath;
 
+    protected $urlGenerator;
+
+    public function __construct(UrlGeneratorInterface $urlGenerator = null) {
+        $this->urlGenerator = $urlGenerator;
+    }
 
     /**
      * Translates any string. Accepts args
@@ -46,7 +54,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string $translatedMsg  Translated text
      */
-    public static function t($msg, $args = array())
+    public function t($msg, $args = array())
     {
         assert('is_string($msg)');
         if (extension_loaded('gettext')) {
@@ -75,7 +83,7 @@ class OneLogin_Saml2_Utils
      *
      * @return DOMDocument|false $dom The result of load the XML at the DomDocument
      */
-    public static function loadXML($dom, $xml)
+    public function loadXML($dom, $xml)
     {
         assert('$dom instanceof DOMDocument');
         assert('is_string($xml)');
@@ -106,7 +114,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string|DOMDocument $dom  string that explains the problem or the DOMDocument
      */
-    public static function validateXML($xml, $schema, $debug = false)
+    public function validateXML($xml, $schema, $debug = false)
     {
         assert('is_string($xml) || $xml instanceof DOMDocument');
         assert('is_string($schema)');
@@ -118,7 +126,7 @@ class OneLogin_Saml2_Utils
             $dom = $xml;
         } else {
             $dom = new DOMDocument;
-            $dom = self::loadXML($dom, $xml);
+            $dom = $this->loadXML($dom, $xml);
             if (!$dom) {
                 return 'unloaded_xml';
             }
@@ -154,7 +162,7 @@ class OneLogin_Saml2_Utils
      * @return string $x509 Formatted cert
      */
 
-    public static function formatCert($cert, $heads = true)
+    public function formatCert($cert, $heads = true)
     {
         $x509cert = str_replace(array("\x0D", "\r", "\n"), "", $cert);
         if (!empty($x509cert)) {
@@ -179,19 +187,19 @@ class OneLogin_Saml2_Utils
      * @return string $rsaKey Formatted private key
      */
 
-    public static function formatPrivateKey($key, $heads = true)
+    public function formatPrivateKey($key, $heads = true)
     {
         $key = str_replace(array("\x0D", "\r", "\n"), "", $key);
         if (!empty($key)) {
             if (strpos($key, '-----BEGIN PRIVATE KEY-----') !== false) {
-                $key = OneLogin_Saml2_Utils::getStringBetween($key, '-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----');
+                $key = $this->getStringBetween($key, '-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----');
                 $key = str_replace(' ', '', $key);
 
                 if ($heads) {
                     $key = "-----BEGIN PRIVATE KEY-----\n".chunk_split($key, 64, "\n")."-----END PRIVATE KEY-----\n";
                 }
             } else if (strpos($key, '-----BEGIN RSA PRIVATE KEY-----') !== false) {
-                $key = OneLogin_Saml2_Utils::getStringBetween($key, '-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----');
+                $key = $this->getStringBetween($key, '-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----');
                 $key = str_replace(' ', '', $key);
 
                 if ($heads) {
@@ -218,7 +226,7 @@ class OneLogin_Saml2_Utils
      * @return string A substring or an empty string if is not able to find the marks
      *                or if there is no string between the marks
      */
-    public static function getStringBetween($str, $start, $end)
+    public function getStringBetween($str, $start, $end)
     {
         $str = ' ' . $str;
         $ini = strpos($str, $start);
@@ -243,13 +251,13 @@ class OneLogin_Saml2_Utils
      *
      * @throws OneLogin_Saml2_Error
      */
-    public static function redirect($url, $parameters = array(), $stay = false)
+    public function redirect($url, $parameters = array(), $stay = false)
     {
         assert('is_string($url)');
         assert('is_array($parameters)');
 
         if (substr($url, 0, 1) === '/') {
-            $url = self::getSelfURLhost() . $url;
+            $url = $this->getSelfURLhost() . $url;
         }
 
         /* Verify that the URL is to a http or https site. */
@@ -303,16 +311,16 @@ class OneLogin_Saml2_Utils
     /**
      * @param $baseurl string The base url to be used when constructing URLs
      */
-    public static function setBaseURL($baseurl)
+    public function setBaseURL($baseurl)
     {
         if (!empty($baseurl)) {
             $baseurlpath = '/';
             if (preg_match('#^https?://([^/]*)/?(.*)#i', $baseurl, $matches)) {
                 if (strpos($baseurl, 'https://') === false) {
-                    self::setSelfProtocol('http');
+                    $this->setSelfProtocol('http');
                     $port = '80';
                 } else {
-                    self::setSelfProtocol('https');
+                    $this->setSelfProtocol('https');
                     $port = '443';
                 }
 
@@ -328,32 +336,32 @@ class OneLogin_Saml2_Utils
                     $baseurlpath = $matches[2];
                 }
 
-                self::setSelfHost($currentHost);
-                self::setSelfPort($port);
-                self::setBaseURLPath($baseurlpath);
+                $this->setSelfHost($currentHost);
+                $this->setSelfPort($port);
+                $this->setBaseURLPath($baseurlpath);
             }
         } else {
-                self::$_host = null;
-                self::$_protocol = null;
-                self::$_port = null;
-                self::$_baseurlpath = null;
+                $this->_host = null;
+                $this->_protocol = null;
+                $this->_port = null;
+                $this->_baseurlpath = null;
         }
     }
 
     /**
      * @param $proxyVars bool Whether to use `X-Forwarded-*` headers to determine port/domain/protocol
      */
-    public static function setProxyVars($proxyVars)
+    public function setProxyVars($proxyVars)
     {
-        self::$_proxyVars = (bool)$proxyVars;
+        $this->_proxyVars = (bool)$proxyVars;
     }
 
     /**
      * return bool
      */
-    public static function getProxyVars()
+    public function getProxyVars()
     {
-        return self::$_proxyVars;
+        return $this->_proxyVars;
     }
 
     /**
@@ -362,19 +370,19 @@ class OneLogin_Saml2_Utils
      *
      * @return string $url
      */
-    public static function getSelfURLhost()
+    public function getSelfURLhost()
     {
-        $currenthost = self::getSelfHost();
+        $currenthost = $this->getSelfHost();
 
         $port = '';
 
-        if (self::isHTTPS()) {
+        if ($this->isHTTPS()) {
             $protocol = 'https';
         } else {
             $protocol = 'http';
         }
 
-        $portnumber = self::getSelfPort();
+        $portnumber = $this->getSelfPort();
 
         if (isset($portnumber) && ($portnumber != '80') && ($portnumber != '443')) {
             $port = ':' . $portnumber;
@@ -386,41 +394,43 @@ class OneLogin_Saml2_Utils
     /**
      * @param $host string The host to use when constructing URLs
      */
-    public static function setSelfHost($host)
+    public function setSelfHost($host)
     {
-        self::$_host = $host;
+        $this->_host = $host;
     }
 
     /**
      * @param $baseurlpath string The baseurl path to use when constructing URLs
      */
-    public static function setBaseURLPath($baseurlpath)
+    public function setBaseURLPath($baseurlpath)
     {
         if (empty($baseurlpath)) {
-            self::$_baseurlpath = null;
+            $this->_baseurlpath = null;
         } else if ($baseurlpath == '/') {
-            self::$_baseurlpath = '/';
+            $this->_baseurlpath = '/';
         } else {
-            self::$_baseurlpath = '/' . trim($baseurlpath, '/') . '/';
+            $this->_baseurlpath = '/' . trim($baseurlpath, '/') . '/';
         }
     }
 
     /**
      * return string The baseurlpath to be used when constructing URLs
      */
-    public static function getBaseURLPath()
+    public function getBaseURLPath()
     {
-        return self::$_baseurlpath;
+        return $this->_baseurlpath;
     }
 
     /**
      * @return string The raw host name
      */
-    protected static function getRawHost()
+    protected function getRawHost()
     {
-        if (self::$_host) {
-            $currentHost = self::$_host;
-        } elseif (self::getProxyVars() && array_key_exists('HTTP_X_FORWARDED_HOST', $_SERVER)) {
+        if ($this->_host) {
+            $currentHost = $this->_host;
+        } elseif (null !== $this->urlGenerator) {
+            $currentHost = $this->urlGenerator->getContext()->getHost();
+        } elseif ($this->getProxyVars() && array_key_exists('HTTP_X_FORWARDED_HOST', $_SERVER)) {
             $currentHost = $_SERVER['HTTP_X_FORWARDED_HOST'];
         } elseif (array_key_exists('HTTP_HOST', $_SERVER)) {
             $currentHost = $_SERVER['HTTP_HOST'];
@@ -439,30 +449,32 @@ class OneLogin_Saml2_Utils
     /**
      * @param $port int The port number to use when constructing URLs
      */
-    public static function setSelfPort($port)
+    public function setSelfPort($port)
     {
-        self::$_port = $port;
+        $this->_port = $port;
     }
 
     /**
      * @param $protocol string The protocol to identify as using, usually http or https
      */
-    public static function setSelfProtocol($protocol)
+    public function setSelfProtocol($protocol)
     {
-        self::$_protocol = $protocol;
+        $this->_protocol = $protocol;
     }
 
     /**
      * @return string http|https
      */
-    public static function getSelfProtocol()
+    public function getSelfProtocol()
     {
         $protocol = 'http';
-        if (self::$_protocol) {
-            $protocol = self::$_protocol;
-        } elseif (self::getSelfPort() == 443) {
+        if ($this->_protocol) {
+            $protocol = $this->_protocol;
+        } elseif (null !== $this->urlGenerator) {
+            $protocol = $this->urlGenerator->getContext()->getScheme();
+        } elseif ($this->getSelfPort() == 443) {
             $protocol = 'https';
-        } elseif (self::getProxyVars() && isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        } elseif ($this->getProxyVars() && isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
         } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
             $protocol = 'https';
@@ -475,9 +487,9 @@ class OneLogin_Saml2_Utils
      *
      * @return string $currentHost The current host
      */
-    public static function getSelfHost()
+    public function getSelfHost()
     {
-        $currentHost = self::getRawHost();
+        $currentHost = $this->getRawHost();
 
         // strip the port
         if (false !== strpos($currentHost, ':')) {
@@ -490,17 +502,23 @@ class OneLogin_Saml2_Utils
     /**
      * @return null|string The port number used for the request
      */
-    public static function getSelfPort()
+    public function getSelfPort()
     {
         $portnumber = null;
-        if (self::$_port) {
-            $portnumber = self::$_port;
-        } else if (self::getProxyVars() && isset($_SERVER["HTTP_X_FORWARDED_PORT"])) {
+        if ($this->_port) {
+            $portnumber = $this->_port;
+        } elseif (null !== $this->urlGenerator) {
+            if ('https' === $this->getSelfProtocol()) {
+                $portnumber = $this->urlGenerator->getContext()->getHttpsPort();
+            } else {
+                $portnumber = $this->urlGenerator->getContext()->getHttpPort();
+            }
+        } elseif ($this->getProxyVars() && isset($_SERVER["HTTP_X_FORWARDED_PORT"])) {
             $portnumber = $_SERVER["HTTP_X_FORWARDED_PORT"];
-        } else if (isset($_SERVER["SERVER_PORT"])) {
+        } elseif (isset($_SERVER["SERVER_PORT"])) {
             $portnumber = $_SERVER["SERVER_PORT"];
         } else {
-            $currentHost = self::getRawHost();
+            $currentHost = $this->getRawHost();
 
             // strip the port
             if (false !== strpos($currentHost, ':')) {
@@ -518,9 +536,9 @@ class OneLogin_Saml2_Utils
      *
      * @return bool $isHttps False if https is not active
      */
-    public static function isHTTPS()
+    public function isHTTPS()
     {
-        return self::getSelfProtocol() == 'https';
+        return $this->getSelfProtocol() == 'https';
     }
 
     /**
@@ -528,11 +546,11 @@ class OneLogin_Saml2_Utils
      *
      * @return string
      */
-    public static function getSelfURLNoQuery()
+    public function getSelfURLNoQuery()
     {
-        $selfURLNoQuery = self::getSelfURLhost();
+        $selfURLNoQuery = $this->getSelfURLhost();
 
-        $infoWithBaseURLPath = self::buildWithBaseURLPath($_SERVER['SCRIPT_NAME']);
+        $infoWithBaseURLPath = $this->buildWithBaseURLPath($_SERVER['SCRIPT_NAME']);
         if (!empty($infoWithBaseURLPath)) {
             $selfURLNoQuery .= $infoWithBaseURLPath;
         } else {
@@ -551,12 +569,14 @@ class OneLogin_Saml2_Utils
      *
      * @return string
      */
-    public static function getSelfRoutedURLNoQuery()
+    public function getSelfRoutedURLNoQuery()
     {
-        $selfURLhost = self::getSelfURLhost();
+        $selfURLhost = $this->getSelfURLhost();
         $route = '';
 
-        if (!empty($_SERVER['REQUEST_URI'])) {
+        if (null !== $this->urlGenerator) {
+            $route = $this->urlGenerator->getContext()->getPathInfo();
+        } elseif (!empty($_SERVER['REQUEST_URI'])) {
             $route = $_SERVER['REQUEST_URI'];
             if (!empty($_SERVER['QUERY_STRING'])) {
                 $route = str_replace($_SERVER['QUERY_STRING'], '', $route);
@@ -566,7 +586,7 @@ class OneLogin_Saml2_Utils
             }
         }
 
-        $infoWithBaseURLPath = self::buildWithBaseURLPath($route);
+        $infoWithBaseURLPath = $this->buildWithBaseURLPath($route);
         if (!empty($infoWithBaseURLPath)) {
             $route = $infoWithBaseURLPath;
         }
@@ -580,9 +600,9 @@ class OneLogin_Saml2_Utils
      *
      * @return string
      */
-    public static function getSelfURL()
+    public function getSelfURL()
     {
-        $selfURLhost = self::getSelfURLhost();
+        $selfURLhost = $this->getSelfURLhost();
 
         $requestURI = '';
         if (!empty($_SERVER['REQUEST_URI'])) {
@@ -594,7 +614,7 @@ class OneLogin_Saml2_Utils
             }
         }
 
-        $infoWithBaseURLPath = self::buildWithBaseURLPath($requestURI);
+        $infoWithBaseURLPath = $this->buildWithBaseURLPath($requestURI);
         if (!empty($infoWithBaseURLPath)) {
             $requestURI = $infoWithBaseURLPath;
         }
@@ -607,10 +627,10 @@ class OneLogin_Saml2_Utils
      *
      * @return string
      */
-    protected static function buildWithBaseURLPath($info)
+    protected function buildWithBaseURLPath($info)
     {
         $result = '';
-        $baseURLPath = self::getBaseURLPath();
+        $baseURLPath = $this->getBaseURLPath();
         if (!empty($baseURLPath)) {
             $result = $baseURLPath;
             if (!empty($info)) {
@@ -631,7 +651,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string
      */
-    public static function extractOriginalQueryParam($name)
+    public function extractOriginalQueryParam($name)
     {
         $index = strpos($_SERVER['QUERY_STRING'], $name.'=');
         $substring = substr($_SERVER['QUERY_STRING'], $index + strlen($name) + 1);
@@ -644,7 +664,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string  A unique string
      */
-    public static function generateUniqueID()
+    public function generateUniqueID()
     {
         return 'ONELOGIN_' . sha1(uniqid((string)mt_rand(), true));
     }
@@ -657,7 +677,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string $timestamp SAML2 timestamp.
      */
-    public static function parseTime2SAML($time)
+    public function parseTime2SAML($time)
     {
         $date = new DateTime("@$time", new DateTimeZone('UTC'));
         $timestamp = $date->format("Y-m-d\TH:i:s\Z");
@@ -674,7 +694,7 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function parseSAML2Time($time)
+    public function parseSAML2Time($time)
     {
         $matches = array();
 
@@ -720,7 +740,7 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function parseDuration($duration, $timestamp = null)
+    public function parseDuration($duration, $timestamp = null)
     {
         assert('is_string($duration)');
         assert('is_null($timestamp) || is_int($timestamp)');
@@ -804,19 +824,19 @@ class OneLogin_Saml2_Utils
      *
      * @return int|null $expireTime  The expiration time.
      */
-    public static function getExpireTime($cacheDuration = null, $validUntil = null)
+    public function getExpireTime($cacheDuration = null, $validUntil = null)
     {
         $expireTime = null;
 
         if ($cacheDuration !== null) {
-            $expireTime = self::parseDuration($cacheDuration, time());
+            $expireTime = $this->parseDuration($cacheDuration, time());
         }
 
         if ($validUntil !== null) {
             if (is_int($validUntil)) {
                 $validUntilTime = $validUntil;
             } else {
-                $validUntilTime = self::parseSAML2Time($validUntil);
+                $validUntilTime = $this->parseSAML2Time($validUntil);
             }
             if ($expireTime === null || $expireTime > $validUntilTime) {
                 $expireTime = $validUntilTime;
@@ -836,7 +856,7 @@ class OneLogin_Saml2_Utils
      *
      * @return DOMNodeList The queried nodes
      */
-    public static function query($dom, $query, $context = null)
+    public function query($dom, $query, $context = null)
     {
         $xpath = new DOMXPath($dom);
         $xpath->registerNamespace('samlp', OneLogin_Saml2_Constants::NS_SAMLP);
@@ -860,7 +880,7 @@ class OneLogin_Saml2_Utils
      *
      * @return bool true if the sessíon is started
      */
-    public static function isSessionStarted()
+    public function isSessionStarted()
     {
         if (PHP_VERSION_ID >= 50400) {
             return session_status() === PHP_SESSION_ACTIVE ? true : false;
@@ -872,10 +892,10 @@ class OneLogin_Saml2_Utils
     /**
      * Deletes the local session.
      */
-    public static function deleteLocalSession()
+    public function deleteLocalSession()
     {
 
-        if (OneLogin_Saml2_Utils::isSessionStarted()) {
+        if ($this->isSessionStarted()) {
             session_destroy();
         }
 
@@ -890,7 +910,7 @@ class OneLogin_Saml2_Utils
      *
      * @return null|string Formatted fingerprint
      */
-    public static function calculateX509Fingerprint($x509cert, $alg = 'sha1')
+    public function calculateX509Fingerprint($x509cert, $alg = 'sha1')
     {
         assert('is_string($x509cert)');
 
@@ -938,7 +958,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string Formatted fingerprint
      */
-    public static function formatFingerPrint($fingerprint)
+    public function formatFingerPrint($fingerprint)
     {
         $formatedFingerprint = str_replace(':', '', $fingerprint);
         $formatedFingerprint = strtolower($formatedFingerprint);
@@ -956,7 +976,7 @@ class OneLogin_Saml2_Utils
      *
      * @return string $nameIDElement DOMElement | XMLSec nameID
      */
-    public static function generateNameId($value, $spnq, $format = null, $cert = null, $nq = null)
+    public function generateNameId($value, $spnq, $format = null, $cert = null, $nq = null)
     {
 
         $doc = new DOMDocument();
@@ -1013,11 +1033,11 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function getStatus($dom)
+    public function getStatus($dom)
     {
         $status = array();
 
-        $statusEntry = self::query($dom, '/samlp:Response/samlp:Status');
+        $statusEntry = $this->query($dom, '/samlp:Response/samlp:Status');
         if ($statusEntry->length != 1) {
             throw new OneLogin_Saml2_ValidationError(
                 "Missing Status on response",
@@ -1025,7 +1045,7 @@ class OneLogin_Saml2_Utils
             );
         }
 
-        $codeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode', $statusEntry->item(0));
+        $codeEntry = $this->query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode', $statusEntry->item(0));
         if ($codeEntry->length != 1) {
             throw new OneLogin_Saml2_ValidationError(
                 "Missing Status Code on response",
@@ -1036,9 +1056,9 @@ class OneLogin_Saml2_Utils
         $status['code'] = $code;
 
         $status['msg'] = '';
-        $messageEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusMessage', $statusEntry->item(0));
+        $messageEntry = $this->query($dom, '/samlp:Response/samlp:Status/samlp:StatusMessage', $statusEntry->item(0));
         if ($messageEntry->length == 0) {
-            $subCodeEntry = self::query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode/samlp:StatusCode', $statusEntry->item(0));
+            $subCodeEntry = $this->query($dom, '/samlp:Response/samlp:Status/samlp:StatusCode/samlp:StatusCode', $statusEntry->item(0));
             if ($subCodeEntry->length == 1) {
                 $status['msg'] = $subCodeEntry->item(0)->getAttribute('Value');
             }
@@ -1060,7 +1080,7 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function decryptElement(DOMElement $encryptedData, XMLSecurityKey $inputKey)
+    public function decryptElement(DOMElement $encryptedData, XMLSecurityKey $inputKey)
     {
 
         $enc = new XMLSecEnc();
@@ -1147,7 +1167,7 @@ class OneLogin_Saml2_Utils
         $newDoc = new DOMDocument();
         $newDoc->preserveWhiteSpace = false;
         $newDoc->formatOutput = true;
-        $newDoc = self::loadXML($newDoc, $xml);
+        $newDoc = $this->loadXML($newDoc, $xml);
         if (!$newDoc) {
             throw new OneLogin_Saml2_ValidationError(
                 'Failed to parse decrypted XML.',
@@ -1177,7 +1197,7 @@ class OneLogin_Saml2_Utils
       *
       * @throws Exception
       */
-    public static function castKey(XMLSecurityKey $key, $algorithm, $type = 'public')
+    public function castKey(XMLSecurityKey $key, $algorithm, $type = 'public')
     {
         assert('is_string($algorithm)');
         assert('$type === "public" || $type === "private"');
@@ -1210,13 +1230,13 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function addSign($xml, $key, $cert, $signAlgorithm = XMLSecurityKey::RSA_SHA1, $digestAlgorithm = XMLSecurityDSig::SHA1)
+    public function addSign($xml, $key, $cert, $signAlgorithm = XMLSecurityKey::RSA_SHA1, $digestAlgorithm = XMLSecurityDSig::SHA1)
     {
         if ($xml instanceof DOMDocument) {
             $dom = $xml;
         } else {
             $dom = new DOMDocument();
-            $dom = self::loadXML($dom, $xml);
+            $dom = $this->loadXML($dom, $xml);
             if (!$dom) {
                 throw new Exception('Error parsing xml string');
             }
@@ -1248,7 +1268,7 @@ class OneLogin_Saml2_Utils
         $insertBefore = $rootNode->firstChild;
         $messageTypes = array('AuthnRequest', 'Response', 'LogoutRequest','LogoutResponse');
         if (in_array($rootNode->localName, $messageTypes)) {
-            $issuerNodes = self::query($dom, '/'.$rootNode->tagName.'/saml:Issuer');
+            $issuerNodes = $this->query($dom, '/'.$rootNode->tagName.'/saml:Issuer');
             if ($issuerNodes->length == 1) {
                 $insertBefore = $issuerNodes->item(0)->nextSibling;
             }
@@ -1277,7 +1297,7 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function validateSign($xml, $cert = null, $fingerprint = null, $fingerprintalg = 'sha1', $xpath = null, $multiCerts = null)
+    public function validateSign($xml, $cert = null, $fingerprint = null, $fingerprintalg = 'sha1', $xpath = null, $multiCerts = null)
     {
         if ($xml instanceof DOMDocument) {
             $dom = clone $xml;
@@ -1285,14 +1305,14 @@ class OneLogin_Saml2_Utils
             $dom = clone $xml->ownerDocument;
         } else {
             $dom = new DOMDocument();
-            $dom = self::loadXML($dom, $xml);
+            $dom = $this->loadXML($dom, $xml);
         }
 
         $objXMLSecDSig = new XMLSecurityDSig();
         $objXMLSecDSig->idKeys = array('ID');
 
         if ($xpath) {
-            $nodeset = OneLogin_Saml2_Utils::query($dom, $xpath);
+            $nodeset = $this->query($dom, $xpath);
             $objDSig = $nodeset->item(0);
             $objXMLSecDSig->sigNode = $objDSig;
         } else {
@@ -1341,8 +1361,8 @@ class OneLogin_Saml2_Utils
             } else {
                 if (!empty($fingerprint)) {
                     $domCert = $objKey->getX509Certificate();
-                    $domCertFingerprint = OneLogin_Saml2_Utils::calculateX509Fingerprint($domCert, $fingerprintalg);
-                    if (OneLogin_Saml2_Utils::formatFingerPrint($fingerprint) == $domCertFingerprint) {
+                    $domCertFingerprint = $this->calculateX509Fingerprint($domCert, $fingerprintalg);
+                    if ($this->formatFingerPrint($fingerprint) == $domCertFingerprint) {
                         $objKey->loadKey($domCert, false, true);
                         if ($objXMLSecDSig->verify($objKey) === 1) {
                             $valid = true;
@@ -1355,7 +1375,7 @@ class OneLogin_Saml2_Utils
         return $valid;
     }
 
-    public static function validateBinarySign($messageType, \Symfony\Component\HttpFoundation\Request $request, $idpData, $retrieveParametersFromServer = false)
+    public function validateBinarySign($messageType, Request $request, $idpData, $retrieveParametersFromServer = false)
     {
         if (null === $request->get('SigAlg')) {
             $signAlg = XMLSecurityKey::RSA_SHA1;
@@ -1364,11 +1384,11 @@ class OneLogin_Saml2_Utils
         }
 
         if ($retrieveParametersFromServer) {
-            $signedQuery = $messageType.'='.OneLogin_Saml2_Utils::extractOriginalQueryParam($messageType);
+            $signedQuery = $messageType.'='.$this->extractOriginalQueryParam($messageType);
             if (null !== $request->get('RelayState')) {
-                $signedQuery .= '&RelayState='.OneLogin_Saml2_Utils::extractOriginalQueryParam('RelayState');
+                $signedQuery .= '&RelayState='.$this->extractOriginalQueryParam('RelayState');
             }
-            $signedQuery .= '&SigAlg='.OneLogin_Saml2_Utils::extractOriginalQueryParam('SigAlg');
+            $signedQuery .= '&SigAlg='.$this->extractOriginalQueryParam('SigAlg');
         } else {
             $signedQuery = $messageType.'='.urlencode($request->get($messageType));
             if (null !== $request->get('RelayState')) {
@@ -1403,7 +1423,7 @@ class OneLogin_Saml2_Utils
 
             if ($signAlg != XMLSecurityKey::RSA_SHA1) {
                 try {
-                    $objKey = OneLogin_Saml2_Utils::castKey($objKey, $signAlg, 'public');
+                    $objKey = $this->castKey($objKey, $signAlg, 'public');
                 } catch (Exception $e) {
                     $ex = new OneLogin_Saml2_ValidationError(
                         "Invalid signAlg in the recieved ".$strMessageType,
