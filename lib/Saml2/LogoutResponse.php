@@ -180,7 +180,7 @@ class OneLogin_Saml2_LogoutResponse
             }
 
             if (null !== $request->get('Signature')) {
-                $signatureValid = $this->utils->OneLogin_Saml2_UtilsvalidateBinarySign("SAMLResponse", $request, $idpData, $retrieveParametersFromServer);
+                $signatureValid = $this->utils->validateBinarySign("SAMLResponse", $request, $idpData, $retrieveParametersFromServer);
                 if (!$signatureValid) {
                     throw new OneLogin_Saml2_ValidationError(
                         "Signature validation failed. Logout Response rejected",
