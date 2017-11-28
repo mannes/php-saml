@@ -3,6 +3,7 @@
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -492,7 +493,7 @@ class OneLogin_Saml2_Auth
      * @param string|null $nameIdFormat        The NameID Format will be set in the LogoutRequest.
      * @param string|null $nameIdNameQualifier The NameID NameQualifier will be set in the LogoutRequest.
      *
-     * @return string|null If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
+     * @return string|Response If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
      *
      * @throws OneLogin_Saml2_Error
      */
