@@ -107,15 +107,18 @@ class OneLogin_Saml2_ValidationError extends Exception
      *
      * @param string     $msg  Describes the error.
      * @param int        $code The code error (defined in the error class).
-     * @param array|null $args Arguments used in the message that describes the error.
+     * @param array      $args Arguments used in the message that describes the error.
      */
-    public function __construct($msg, $code = 0, $args = null)
+    public function __construct(string $msg, int $code = 0, array $args = [])
     {
         assert('is_string($msg)');
         assert('is_int($code)');
 
-        $message = OneLogin_Saml2_Utils::t($msg, $args);
+        $arguments = [ $msg ];
+        $arguments = array_merge($arguments, $args);
 
+        $message = call_user_func_array('sprintf', $arguments);
+     
         parent::__construct($message, $code);
     }
 }
